@@ -1,0 +1,5 @@
+safe: true
+source: /home/b0b/Web/blog
+destination: /home/b0b/Web/blog/_site
+lsi: false
+pygments: true
