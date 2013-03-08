@@ -1,5 +1,5 @@
 safe: true
-source: /home/b0b/Web/blog
-destination: /home/b0b/Web/blog/_site
+source: /home/b0b/Web/jekyll_blog
+destination: /home/b0b/Web/jekyll_blog/_site
 lsi: false
 pygments: true
