@@ -1,20 +1,24 @@
-<!DOCTYPE html>
-<head>
-<link rel="stylesheet" media="screen" href="{{ site.url }}css/bootstrap.min.css">
-</head>
-<body class="row">
-{% include sidebar.html %}
-<div class="span8">
+{% include head.html %}
+
+<body class="container">
 <div class="row">
-<h3>
-{{ page.title }} 
-</h3>
-<h4>
-{{ page.date | date: "%d %B %Y" }}
-</h4>
-<p> 
-{{ content }} 
-</p>
-</div>
+	<div class="span4">
+		{% include sidebar.html %}
+	</div>
+		<div class="span8">
+			{% include navbar.html %}
+			<div class="row">
+				<h3>
+					{{ page.title }} 
+				</h3>
+				<h4>
+					{{ page.date | date: "%B %d %Y" }}
+				</h4>
+				<p> 
+					{{ content }} 
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 </body>

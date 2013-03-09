@@ -1,31 +1,36 @@
 ---
 layout: nil
 ---
-<!DOCTYPE html>
-<head>
-<link rel="stylesheet" media="screen" href="{{ site.url }}css/bootstrap.min.css">
-</head>
-<body class="row">
-{% include sidebar.html %}
 
-<div class="span8">
-{% for post in site.posts %}
+{% include head.html %}
+
+<body class="container">
 <div class="row">
-<div class="span1">
-<p>
-{{ post.date | date_to_string }}
-</p>
-</div>
-<div class="span7">
-<p style="font-size:20px">
-<a href="/jekyll_blog{{ post.url }}">{{ post.title }}</a><br>
-</p>
-<p>
-{{ post.tagline }}... 
-</p>
-</div>
-</div>
-{% endfor %}
-</div>
+	<div class="span4">
+		{% include sidebar.html %}
+	</div>
 
+		<div class="span8">
+			{% include navbar.html %}
+		{% for post in site.posts %}
+			<div class="row">
+				<div class="span1">
+				<p>
+					{{ post.date | date_to_string }}
+				</p>
+				</div>
+
+				<div class="span7">
+				<p style="font-size:20px">
+					<a href="{{ site.url }}{{ post.url }}">{{ post.title }}</a><br>
+				</p>
+				<p>
+					{{ post.tagline }}... 
+				</p>
+				</div>
+			</div>
+		{% endfor %}
+		</div>
+	</div>
+</div>
 </body>
