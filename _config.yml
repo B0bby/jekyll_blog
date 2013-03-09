@@ -1,5 +1,6 @@
 safe: true
 source: .
 destination: ./_site
+url: http://b0bby.github.com/jekyll_blog/
 lsi: false
 pygments: true
