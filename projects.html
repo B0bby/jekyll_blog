@@ -3,14 +3,13 @@ layout: nil
 ---
 
 {% include head.html %}
-{% include navbar.html %}
+{% include projects_navbar.html %}
 
-{% for post in site.posts %}
+{% for project in site.projects %}
 	<div class="row">
 		<dl class="span8">
 		<dt>
-			<a style="font-size:25px" href="{{ site.url }}{{ post.url }}">{{ post.title }}</a><br>
-			<div style="font-size:15px">{{ post.date | date_to_long_string }}</div>
+			<a style="font-size:25px" href="{{ site.url }}{{ project.url }}">{{ project.title }}</a><br>
 		</dt>
 		<dd style="padding-left:15px">
 			{{ post.tagline }}... 

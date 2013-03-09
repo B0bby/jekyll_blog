@@ -1,11 +1,8 @@
 {% include head.html %}
-{% include navbar.html %}
+{% include projects_navbar.html %}
 <div class="row" style="padding-left:15px">
 	<p style="font-size:30px">
-		{{ page.title }} 
-	</p>
-	<p class="btn btn-info disabled" style="padding:1px">
-		{{ page.date | date: "%B %d %Y" }}
+		{{ project.title }} 
 	</p>
 	<p style="padding-top:15px"> 
 		{{ content }} 
