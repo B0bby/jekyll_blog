@@ -6,17 +6,17 @@ layout: nil
 {% include navbar.html %}
 
 {% for post in site.posts %}
-	<div class="row">
-		<dl class="span8">
+<div class="row">
+		<dl style="border-top-style:dotted;border-left-style:solid;padding:7px" class="span8">
 		<dt>
 			<a style="font-size:25px" href="{{ site.url }}{{ post.url }}">{{ post.title }}</a><br>
 			<div style="font-size:15px">{{ post.date | date_to_long_string }}</div>
 		</dt>
-		<dd style="padding-left:15px">
+		<dd>
 			{{ post.tagline }}... 
 		</dd>
 		</dl>
-	</div>
+</div>
 {% endfor %}
 
 {% include foot.html %}
