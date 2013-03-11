@@ -6,16 +6,18 @@ layout: nil
 {% include navbar.html %}
 
 {% for post in site.posts %}
-<div class="row">
-		<dl style="padding:7px;border-radius:5px;box-shadow:-5px 5px 5px #C2C2C2" class="span8">
+<div class="row" style="padding-left:20px;padding-bottom:10px">
+	<a class="btn" style="text-align:left;background-color:#E9E9E9;box-shadow:-5px 5px 5px #C2C2C2" href="{{ site.url }}{{ post.url }}">
+		<dl class="span8">
 		<dt>
-			<a style="font-size:25px" href="{{ site.url }}{{ post.url }}">{{ post.title }}</a><br>
-			<div style="font-size:15px">{{ post.date | date_to_long_string }}</div>
+			<div style="font-size:25px;color:#08c">{{ post.title }}</div>
+			<div style="font-size:15px;padding-top:3px">{{ post.date | date_to_long_string }}</div>
 		</dt>
 		<dd>
 			{{ post.tagline }}... 
 		</dd>
 		</dl>
+	</a>
 </div>
 {% endfor %}
 
