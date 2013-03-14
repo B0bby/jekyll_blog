@@ -1,11 +1,16 @@
 {% include head.html %}
-{% include projects_navbar.html %}
-<div class="row" style="padding-left:15px">
-	<p style="font-size:30px">
-		{{ project.title }} 
-	</p>
-	<p style="padding-top:15px"> 
+{% include navbar.html %}
+
+<div style="background-color:#E9E9E9;border-radius:5px;padding:10px;box-shadow:-5px 5px 5px #C2C2C2">
+	<div style="color:#08c;font-size:35px;padding-bottom:20px;padding-top:10px;text-align:center">
+		<strong>{{ page.title }}</strong>
+	</div> 
+	<div style="border-bottom-style:solid;font-size:25px;text-align:right">
+		{{ page.date | date: "%B %d %Y" }}
+	</div>
+	<p style="padding-left:20px;padding-top:10px"> 
 		{{ content }} 
 	</p>
 </div>
+
 {% include foot.html %}
