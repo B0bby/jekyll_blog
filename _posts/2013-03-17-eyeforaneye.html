@@ -6,7 +6,7 @@ tagline: I watched 'Seven Psychopaths' this weekend
 <h3>The Lamest Idea</h3>
 I watched 'Seven Psychopaths' this weekend and one of the characters ranted about a fallacy with the anecdote 'An eye for an eye leaves the whole world blind'. Namely that the last person with eyes will be able to avoid having his eyes removed, given that everyone else in the world is blind.<br><br>
 
-I thought it'd be neat to simulate this with a little script, which was fun to make and I used it as an excuse to learn some Ruby, but in hindsight was a really dumb idea. I mean, honestly, given the rules I listed before I even started coding anything, it should have been pretty easy determine the outcome every time, unequivocally. <br><br>
+I thought it'd be neat to simulate this with a little script, which was fun to make and I used it as an excuse to learn some Ruby, but in hindsight was a really dumb idea. I mean, honestly, given the rules I listed before I even started coding anything, it should have been pretty easy to determine the outcome every time, unequivocally. <br><br>
 
 <pre># EXECUTION:
 # 1. Randomly generate a 'world' of people. 
@@ -22,7 +22,7 @@ I thought it'd be neat to simulate this with a little script, which was fun to m
 # 2. A blind person is incapable of effectively commiting a wrong.
 # 3. A blind person is incapable of retribution. (Crimes 
 # 	committed against them will not result in an eye removal)</pre>
-<i>The conditions I wrote out before writing any pre</i><br><br>
+<i>The conditions I wrote out before writing any code</i><br><br>
 
 These rules will always result in one person left with sight, though the amount of eyes that remain can vary.<br><br>
 
@@ -37,7 +37,7 @@ In order to make an array where each element is affected individually, I had to 
 <pre>anArray = Array.new(3) { Array.new(3,Hash.new) }</pre>
 <i>This also creates a 3x3 array, but each element is affected individually. Which is kind of how I would expect an array to operate in the first place, which makes me suspicious that I'm doing something horribly wrong</i><br><br>
 
-And then I had to fill each element with a for loop. There's probably a better way to do that, but there's a knowledge gap I'll save for another project. In the mean time, here's the pre for the whole shebang, if you're at all interested:<br><br>
+And then I had to fill each element with a for loop. There's probably a better way to do that, but there's a knowledge gap I'll save for another project. In the mean time, here's the code for the whole shebang, if you're at all interested:<br><br>
 
 <pre>
 def populateWorld(population)
