@@ -2,23 +2,15 @@
 layout: nil
 ---
 
-{% include head.html %}
-{% include navbar.html %}
+{% include header.html %}
 
 {% for post in site.posts %}
-<div class="row" style="padding-left:20px;padding-bottom:10px">
-	<a class="btn" style="text-align:left;background-color:#E9E9E9;box-shadow:-2px 2px 2px #C2C2C2" href="{{ site.url }}{{ post.url }}">
-		<dl class="span8">
-		<dt>
-			<div style="font-size:25px;color:#08c">{{ post.title }}</div>
-			<div style="font-size:15px;padding-top:3px">{{ post.date | date: "%B %d %Y" }}</div>
-		</dt>
-		<dd>
-			{{ post.tagline }}... 
-		</dd>
-		</dl>
+<div class="row">
+	<div class="span2" style="margin-left:20%;margin-top:1.5em">{{ post.date | date: "%B %d %Y" }}</div>
+	<a class="span8" style="font-family:'Ubuntu', sans-serif" href="{{ site.url }}{{ post.url }}">
+		<h3 style="font-size:2em">{{post.title}}</h3>
 	</a>
 </div>
 {% endfor %}
 
-{% include foot.html %}
+{% include footer.html %}
