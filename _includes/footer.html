@@ -1,30 +1,53 @@
-<script type="text/javascript">
-  var GoSquared = {};
-  GoSquared.acct = "GSN-506298-T";
-  (function(w){
-    function gs(){
-      w._gstc_lt = +new Date;
-      var d = document, g = d.createElement("script");
-      g.type = "text/javascript";
-      g.src = "//d1l6p2sc9645hc.cloudfront.net/tracker.js";
-      var s = d.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(g, s);
-    }
-    w.addEventListener ?
-      w.addEventListener("load", gs, false) :
-      w.attachEvent("onload", gs);
-  })(window);
+<script src="{{ site.url }}js/jquery-2.0.3.js"></script>
+<script src="{{ site.url }}js/bootstrap.min.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-43905105-1', 'ratherunintelligent.com');
+  ga('send', 'pageview');
+
 </script>
-<div style="font-family:'Ubuntu';
-            padding-top:30px;
-            text-align:center;">
-            <div style="border-top:2px solid rgb(197, 191, 191);
-                        padding-top:1em;
-                        padding-bottom:30px;
-                        width:800px;
-                        margin-left:auto;
-                        margin-right:auto;">
-                        Bob 2013
-            </div>
+
+<script>
+    $(document).ready(function(){
+      addColorBars();
+      // var colorBar = "<div class='color-bar' style='width:'" + 25 + "';></div>";
+      // document.getElementById("header").innerHTML+=colorBar;
+      if ( ! $("div.container").hasClass("about")) {
+        $(".linkbar-button.about").attr("href", "{{ site.url }}about.html");
+      } else {
+        $(".linkbar-button.about").attr("href", "{{ site.url }}index.html");
+        $(".linkbar-button.about > div").attr("title", "Return");
+        $(".linkbar-button.about > div > i").attr("class", "icon-mail-reply");
+      }
+
+      $("[data-toggle='tooltip']").tooltip({html:true, placement: 'right'});
+    });
+
+    function addColorBars(){
+      var time = 0;
+      var color2 = Math.floor((Math.random()*255) + 0);
+      var color3 = Math.floor((Math.random()*255) + 0);
+      var amplitude = 50;
+      var phase = 400;
+      var period = 0.20;
+      for (var x=0; x < 225; x=x+3) {
+        var colorBar = "<div class='color-bar' style='margin-top:" + x + "px;width:" + 
+          ((amplitude * Math.sin(period * time)) + phase)
+          + "px;background-color:rgb(" +
+            x + "," + color2 + "," + color3
+          + ");'></div>";
+        document.getElementById("color-bars").innerHTML+=colorBar;
+        time++;
+      }
+    };
+</script>
+
+<div class="copyright">
+    Bob 2013
 </div>
 </body>

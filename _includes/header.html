@@ -3,75 +3,48 @@
 <head>
 	<title> Rather Unintelligent </title>
 	<link rel="stylesheet" href="{{ site.url }}css/bootstrap.min.css">
-	<link rel="stylesheet" href="{{ site.url }}FortAwesome-Font-Awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{ site.url }}css/font-awesome.min.css">
+	<link rel="stylesheet" href="{{ site.url }}css/custom.css">
 	<link href='http://fonts.googleapis.com/css?family=Alfa+Slab+One' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
 	<link href='http://fonts.googleapis.com/css?family=Sintony' rel='stylesheet' type='text/css'>
 </head>
 
-<body style="background-color:#FFF">
-<div style="position:static;width:100%;height:222px;background-color:rgb(245, 255, 134);box-shadow:0px 2px 7px rgb(99, 99, 99);margin-bottom:1em">
-	<a href="{{ site.url }}about.html">
-		<div style="background-color:rgb(171, 255, 181);
-					height:60px;
-					width:60px;
-					float:left;
-					margin-top:20px;
-					border-radius:0px 10px 10px 0px;
-					box-shadow:2px 0px 5px rgb(151, 151, 151);
-					font-family:Alfa Slab One;
-					text-align:center;
-					font-size:3em;">
-					<div style="margin-top:0.2em"><i class="icon-question-sign"></i></div>
+<body>
+<div class="header-bar">
+	<div id="color-bars"></div>
+	<a class ="title" href="{{ site.url }}index.html">
+		Bob is Dumb
+	</a>
+</div>
+
+<div class="linkbar">
+	<a class="linkbar-button about" href="#">
+		<div class="button-icon"
+			 data-toggle="tooltip"
+			 title="About">
+			<i class="icon-question"></i>
 		</div>
 	</a>
-	<a href="https://github.com/B0bby">
-		<div style="background-color:rgb(255, 255, 255);
-					height:60px;
-					width:60px;
-					right:0px;
-					margin-top:20px;
-					border-radius:10px 0px 0px 10px;
-					box-shadow:-2px 0px 5px rgb(151, 151, 151);
-					font-family:Alfa Slab One;
-					text-align:center;
-					font-size:3em;
-					position:absolute;">
-					<div style="margin-top:0.2em"><i class="icon-github"></i></div>
+	<a class="linkbar-button github" href="https://github.com/B0bby" target="_blank">
+		<div class="button-icon"
+			 data-toggle="tooltip"
+			 title="Github">
+			<i class="icon-github"></i>
 		</div>
 	</a>
-	<a href="https://twitter.com/BobLeGrand2">
-		<div style="background-color:rgb(171, 255, 248);
-					height:60px;
-					width:60px;
-					right:0px;
-					margin-top:80px;
-					border-radius:10px 0px 0px 10px;
-					box-shadow:-2px 0px 5px rgb(151, 151, 151);
-					font-family:Alfa Slab One;
-					text-align:center;
-					font-size:3em;
-					position:absolute;">
-					<div style="margin-top:0.2em"><i class="icon-twitter"></i></div>
+	<a class="linkbar-button twitter" href="https://twitter.com/BobLeGrand2" target="_blank">
+		<div class="button-icon"
+			 data-toggle="tooltip"
+			 title="Twitter">
+			<i class="icon-twitter"></i>
 		</div>
 	</a>
-	<a href="mailto:robertj.legrand@gmail.com">
-		<div style="background-color:rgb(255, 171, 171);
-					height:60px;
-					width:60px;
-					right:0px;
-					margin-top:140px;
-					border-radius:10px 0px 0px 10px;
-					box-shadow:-2px 0px 5px rgb(151, 151, 151);
-					font-family:Alfa Slab One;
-					text-align:center;
-					font-size:3em;
-					position:absolute;">
-					<div style="margin-top:0.2em"><i class="icon-envelope-alt"></i></div>
+	<a class="linkbar-button mail" href="mailto:robertj.legrand@gmail.com" target="_blank">
+		<div class="button-icon"
+			 data-toggle="tooltip"
+			 title="Mail">
+			<i class="icon-envelope-alt"></i>
 		</div>
-	</a>
-	<a href="{{ site.url }}index.html">
-		<div style="font-family:Alfa Slab One;font-size:7em;line-height:1;margin-left:1em;padding-top:0.3em">Bob is Dumb</div>
-		<div style="font-size:2em;line-height;1;margin-left:3.5em">and this is his blog</div>
 	</a>
 </div>

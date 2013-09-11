@@ -4,13 +4,15 @@ layout: nil
 
 {% include header.html %}
 
-{% for post in site.posts %}
-<div class="row">
-	<div class="span2" style="margin-left:20%;margin-top:1.5em">{{ post.date | date: "%B %d %Y" }}</div>
-	<a class="span8" style="font-family:'Ubuntu', sans-serif" href="{{ site.url }}{{ post.url }}">
-		<h3 style="font-size:2em">{{post.title}}</h3>
-	</a>
+<div class="container posts">
+	{% for post in site.posts %}
+		<div class="row" style="margin-bottom: 15px">
+			<div class="col-sm-2 post-date">{{ post.date | date: "%B %d %Y" }}</div>
+			<a class="col-sm-10 post-link"href="{{ site.url }}{{ post.url }}">
+				{{post.title}}
+			</a>
+		</div>
+	{% endfor %}
 </div>
-{% endfor %}
 
 {% include footer.html %}

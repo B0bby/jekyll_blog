@@ -1,17 +1,13 @@
 {% include header.html %}
 
-<div class="row" style="padding-bottom:3em">
-	<h1 style="font-family:Sintony, sans-serif;margin-left:auto;margin-right:auto;width:70%;text-align:center">{{page.title}}</h1>
-	<div style="border-bottom:solid 2px;
-				font-size:2em;
-				margin-left:auto;
-				margin-right:auto;
-				width:70%;
-				text-align:center;
-				padding-bottom:10px">
-		{{ page.date | date: "%B %d %Y" }}
+<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+			<h1 class="content-title">{{page.title}}</h1>
+			<div class="content-subtitle">{{ page.date | date: "%B %d %Y" }}</div>
+			<div class="content">{{content}}</div>
+		</div>
 	</div>
-	<div style="font-family:Sintony;font-size:1.75em;line-height:1.5;margin-left:auto;margin-right:auto;width:70%;padding-top:1em">{{content}}</div>
 </div>
 
 {% include footer.html %}

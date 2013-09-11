@@ -17,27 +17,28 @@ The script works by cycling through every chat that the connected account is a p
 the latest array of messages from each, then it enters a loop and cycles through each chat again, 
 checking if the latest message has changed. If it detects a change, it checks the new message for 
 commands or highlight words, does what it needs to, then grabs the latest message from every chat 
-again and begins checking for new messages once more. <br><br>
-<code>
-for chat in skype.Chats:
-				if (messages[index] != "Null"):
-					try:
-						if (messages[index] != chat.RecentMessages[len(chat.RecentMessages) -1 ].Body):
-							loop = False
-							newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
+again and begins checking for new messages once more. 
 
-</code>
+<br><br>
+<pre>for chat in skype.Chats:
+if (messages[index] != "Null"):
+	try:
+		if (messages[index] != chat.RecentMessages[len(chat.RecentMessages) -1 ].Body):
+			loop = False
+			newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
+</pre>
+
 The problem I encountered involved the way that the messages were read from a chat. In the linux 
 version of Skype, an empty chat will return one empty message in its message array, whereupon 
 the program grabs the 'latest' message index by subtracting one from that array's length. In 
 the latest Windows version, an empty chat will return an array of length zero, and subracting 
 one from that will cause a runtime error. <br><br>
 All I had to do was append an empty string in the case that a chat with zero messages appears, and 
-I was good to go on both platforms.
-<code>
-	for chat in skype.Chats:
-			if (len(chat.RecentMessages) <= 0):
-				messages.append("Null")
-			else:
-				messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
-</code>
+I was good to go on both platforms.<br><br>
+
+<pre>for chat in skype.Chats:
+	if (len(chat.RecentMessages) <= 0):
+		messages.append("Null")
+	else:
+		messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
+</pre>
