@@ -2,8 +2,8 @@ safe: true
 source: .
 destination: ./_site
 
-#  url: http://b0bby.github.com/jekyll_blog/
-url: /home/b0b/git/jekyll_blog/_site/
+url: http://b0bby.github.com/jekyll_blog/
+# url: /home/b0b/git/jekyll_blog/_site/
 
 lsi: false
 pygments: true
