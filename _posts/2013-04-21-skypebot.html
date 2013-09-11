@@ -17,7 +17,6 @@ The script works by cycling through every chat that the connected account is a p
 the latest array of messages from each, then it enters a loop and cycles through each chat again, 
 checking if the latest message has changed. If it detects a change, it checks the new message for 
 commands or highlight words, does what it needs to, then grabs the latest message from every chat 
-<<<<<<< HEAD
 again and begins checking for new messages once more. 
 
 <br><br>
@@ -29,7 +28,6 @@ if (messages[index] != "Null"):
 			newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
 </pre>
 
-=======
 again and begins checking for new messages once more. <br><br>
 <pre>
 for chat in skype.Chats:
@@ -40,14 +38,12 @@ for chat in skype.Chats:
 				newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
 
 </pre>
->>>>>>> d746166fd74ce310beb633b0050f82a3330d85bd
 The problem I encountered involved the way that the messages were read from a chat. In the linux 
 version of Skype, an empty chat will return one empty message in its message array, whereupon 
 the program grabs the 'latest' message index by subtracting one from that array's length. In 
 the latest Windows version, an empty chat will return an array of length zero, and subracting 
 one from that will cause a runtime error. <br><br>
 All I had to do was append an empty string in the case that a chat with zero messages appears, and 
-<<<<<<< HEAD
 I was good to go on both platforms.<br><br>
 
 <pre>for chat in skype.Chats:
@@ -55,7 +51,6 @@ I was good to go on both platforms.<br><br>
 		messages.append("Null")
 	else:
 		messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
-=======
 I was good to go on both platforms.
 <pre>
 for chat in skype.Chats:
@@ -63,5 +58,4 @@ for chat in skype.Chats:
 			messages.append("Null")
 		else:
 			messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
->>>>>>> d746166fd74ce310beb633b0050f82a3330d85bd
 </pre>
