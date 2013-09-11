@@ -13,10 +13,26 @@
 </script>
 
 <script>
+    var y = 0;
+    var sinWave = new Array();
+    var time = 0;
+    var color2 = Math.floor((Math.random()*255) + 0);
+    var color3 = Math.floor((Math.random()*255) + 0);
+    var amplitude = 20;
+    var phaseX = 400;
+    var phaseY = 30;
+    var period = 0.15;
+    for (var x=0; x < 225; x=x+5) {
+      sinWave[time] = (amplitude * Math.sin(period * (time + phaseY)) + phaseX);
+      time++;
+    }
+
+    addColorBars();
+    animateColorBars();
+
+
     $(document).ready(function(){
       addColorBars();
-      // var colorBar = "<div class='color-bar' style='width:'" + 25 + "';></div>";
-      // document.getElementById("header").innerHTML+=colorBar;
       if ( ! $("div.container").hasClass("about")) {
         $(".linkbar-button.about").attr("href", "{{ site.url }}about.html");
       } else {
@@ -29,22 +45,37 @@
     });
 
     function addColorBars(){
-      var time = 0;
-      var color2 = Math.floor((Math.random()*255) + 0);
-      var color3 = Math.floor((Math.random()*255) + 0);
-      var amplitude = 50;
-      var phase = 400;
-      var period = 0.20;
-      for (var x=0; x < 225; x=x+3) {
-        var colorBar = "<div class='color-bar' style='margin-top:" + x + "px;width:" + 
-          ((amplitude * Math.sin(period * time)) + phase)
-          + "px;background-color:rgb(" +
-            x + "," + color2 + "," + color3
-          + ");'></div>";
+      for (var x=0; x < 225; x=x+5) {
+
+        var colorBar = "<div class='color-bar' style='margin-top:" + 
+                        x 
+                      + "px;width:" + 
+                        sinWave[time]
+                      + "px;background-color:rgb(" +
+                        x + "," + color2 + "," + color3
+                      + ");'></div>";
+
         document.getElementById("color-bars").innerHTML+=colorBar;
-        time++;
       }
     };
+
+    function animateColorBars(){
+      var x = y;
+      $('#color-bars').children('div').each(function(){
+        $(this).css('width', sinWave[x]);
+        x++;
+        if (x > sinWave.length){
+          x = 0;
+        }
+      });
+
+      y++;
+      if (y > sinWave.length){
+        y = 0;
+      }
+      setTimeout(animateColorBars,55);
+    }
+
 </script>
 
 <div class="copyright">
