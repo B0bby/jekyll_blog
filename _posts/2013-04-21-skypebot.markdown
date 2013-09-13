@@ -4,58 +4,59 @@ title: SkypeBot
 tags: skypebot, skype4py
 ---
 
-I enjoy using <a href="https://pushover.net/">Pushover</a> for notifications. It has a really slick, 
+I enjoy using [Pushover](https://pushover.net/) for notifications. It has a really slick, 
 easy to use API. Currently, I have notifications from IRC pushed to my phone -- and I love it -- so 
-I decided to look for a way to get similar notifications from my <i>other</i> major channel of text
-communication, Skype.<br><br>
-Some googling turned up the <a href="http://skype4py.sourceforge.net/doc/html/">skype4py</a> API, 
-which made implementing a pushover notifier for Skype a snap, for the most part.<br><br>
+I decided to look for a way to get similar notifications from my *other* major channel of text
+communication, Skype.
+
+
+Some googling turned up the [skype4py](http://skype4py.sourceforge.net/doc/html/) API, 
+which made implementing a pushover notifier for Skype a snap, for the most part.
 One major stumbling block was that, while writing the script initially, I was testing it inside an 
 Ubuntu 12.04 VM, which -- being Linux-based, of course -- runs an older version of Skype than the 
-computer I intended to leave the script running on. <br><br>
+computer I intended to leave the script running on.
+
+
 The script works by cycling through every chat that the connected account is a part of, and grabbing 
 the latest array of messages from each, then it enters a loop and cycles through each chat again, 
 checking if the latest message has changed. If it detects a change, it checks the new message for 
 commands or highlight words, does what it needs to, then grabs the latest message from every chat 
 again and begins checking for new messages once more. 
 
-<br><br>
-<pre>for chat in skype.Chats:
-if (messages[index] != "Null"):
-	try:
-		if (messages[index] != chat.RecentMessages[len(chat.RecentMessages) -1 ].Body):
-			loop = False
-			newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
-</pre>
 
-again and begins checking for new messages once more. <br><br>
-<pre>
-for chat in skype.Chats:
+	for chat in skype.Chats:
 	if (messages[index] != "Null"):
 		try:
 			if (messages[index] != chat.RecentMessages[len(chat.RecentMessages) -1 ].Body):
 				loop = False
 				newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
 
-</pre>
+
+again and begins checking for new messages once more.
+
+
+	for chat in skype.Chats:
+		if (messages[index] != "Null"):
+			try:
+				if (messages[index] != chat.RecentMessages[len(chat.RecentMessages) -1 ].Body):
+					loop = False
+					newMessage = skype.Chats[index].RecentMessages[len(skype.Chats[index].RecentMessages) -1]
+
+
 The problem I encountered involved the way that the messages were read from a chat. In the linux 
 version of Skype, an empty chat will return one empty message in its message array, whereupon 
 the program grabs the 'latest' message index by subtracting one from that array's length. In 
 the latest Windows version, an empty chat will return an array of length zero, and subracting 
-one from that will cause a runtime error. <br><br>
+one from that will cause a runtime error.
 All I had to do was append an empty string in the case that a chat with zero messages appears, and 
-I was good to go on both platforms.<br><br>
-
-<pre>for chat in skype.Chats:
-	if (len(chat.RecentMessages) <= 0):
-		messages.append("Null")
-	else:
-		messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
 I was good to go on both platforms.
-<pre>
-for chat in skype.Chats:
+
+
+	for chat in skype.Chats:
 		if (len(chat.RecentMessages) <= 0):
 			messages.append("Null")
 		else:
 			messages.append(chat.RecentMessages[len(chat.RecentMessages) -1 ].Body)
-</pre>
+
+
+	I was good to go on both platforms.

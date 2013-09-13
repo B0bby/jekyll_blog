@@ -1,6 +1,6 @@
 jekyll_blog
 ===========
 
-My blog, created as an exercise to learn HTML, CSS, Jekyll and Twitter Bootstrap.
+My blog, originally created as an exercise to learn HTML, CSS, and javascript.
 
 ratherunintelligent.com

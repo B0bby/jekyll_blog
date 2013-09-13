@@ -13,46 +13,57 @@
 </script>
 
 <script>
+    // Create color bars and start sine wave
     var y = 0;
-    var sinWave = new Array();
+    var sineWave = new Array();
     var time = 0;
     var color2 = Math.floor((Math.random()*255) + 0);
     var color3 = Math.floor((Math.random()*255) + 0);
-    var amplitude = 20;
+    var amplitude = 75;
+    var refresh = 40;
     var phaseX = 400;
-    var phaseY = 30;
-    var period = 0.15;
-    for (var x=0; x < 225; x=x+5) {
-      sinWave[time] = (amplitude * Math.sin(period * (time + phaseY)) + phaseX);
-      time++;
+    var phaseY = 0;
+    var period = 0.05;
+    var colorBarHeight = 2;
+    var headerBarHeight = $(".header-bar").height();
+    var sineLength = headerBarHeight/colorBarHeight;
+
+    for (time=0; time < sineLength * 2 +51; time++) {
+      sineWave[time] = Math.round(amplitude * Math.sin(period * (time + phaseY)) + phaseX);
     }
 
     addColorBars();
     animateColorBars();
 
-
     $(document).ready(function(){
-      addColorBars();
-      if ( ! $("div.container").hasClass("about")) {
-        $(".linkbar-button.about").attr("href", "{{ site.url }}about.html");
-      } else {
+
+      if ($("div.container").hasClass("about")) {
         $(".linkbar-button.about").attr("href", "{{ site.url }}index.html");
         $(".linkbar-button.about > div").attr("title", "Return");
         $(".linkbar-button.about > div > i").attr("class", "icon-mail-reply");
+      } else {
+        $(".linkbar-button.about").attr("href", "{{ site.url }}about.html");
       }
 
       $("[data-toggle='tooltip']").tooltip({html:true, placement: 'right'});
     });
 
     function addColorBars(){
-      for (var x=0; x < 225; x=x+5) {
+
+      for (time=0; time < sineLength; time++) {
 
         var colorBar = "<div class='color-bar' style='margin-top:" + 
-                        x 
+                        (time * colorBarHeight)
                       + "px;width:" + 
-                        sinWave[time]
+                        sineWave[time]
+                      + "px;height:" +
+                        colorBarHeight
                       + "px;background-color:rgb(" +
-                        x + "," + color2 + "," + color3
+                        Math.round(time * (255/sineWave.length)) 
+                        + "," + 
+                        color2 
+                        + "," + 
+                        color3
                       + ");'></div>";
 
         document.getElementById("color-bars").innerHTML+=colorBar;
@@ -60,20 +71,20 @@
     };
 
     function animateColorBars(){
+      if (y > sineWave.length){
+        y = 0;
+      }
       var x = y;
       $('#color-bars').children('div').each(function(){
-        $(this).css('width', sinWave[x]);
-        x++;
-        if (x > sinWave.length){
+        if (x > sineWave.length -1){
           x = 0;
         }
+        $(this).css('width', sineWave[x]);
+        x++;
       });
 
       y++;
-      if (y > sinWave.length){
-        y = 0;
-      }
-      setTimeout(animateColorBars,55);
+      setTimeout(animateColorBars, refresh);
     }
 
 </script>
