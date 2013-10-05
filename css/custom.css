@@ -104,6 +104,15 @@ a.title:hover {
 	padding-left: 70px !important;
 }
 
+.container img {
+	text-align: center;
+}
+
+.container p {
+	-webkit-margin-before: 1em;
+	-webkit-margin-after: 1em;
+}
+
 .container.about {
 	font-family:sans-serif;
 	text-align: left;
