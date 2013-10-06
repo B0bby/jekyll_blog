@@ -8,4 +8,4 @@ So I've gotten the idea to make my own blog-like thing. I know this doesn't look
 
 I've spent the last day or so trying to get the hang of HTML and CSS for the first time, and I've also been experimenting with Jekyll, a static HTML page-generating program. I'm starting to really like it, the more I get the hang of it. 
 
-My n00b is showing, but I hope to perhaps document my progress towards some semblance of competence.
+My inexperience is apparent, but I hope to perhaps document my progress towards some semblance of competence.
