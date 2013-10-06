@@ -1,5 +1,5 @@
-<script src="{{ site.url }}js/jquery-2.0.3.js"></script>
-<script src="{{ site.url }}js/bootstrap.min.js"></script>
+<script src="{{ site.url }}/js/jquery-2.0.3.js"></script>
+<script src="{{ site.url }}/js/bootstrap.min.js"></script>
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -38,11 +38,11 @@
     $(document).ready(function(){
 
       if ($("div.container").hasClass("about")) {
-        $(".linkbar-button.about").attr("href", "{{ site.url }}index.html");
+        $(".linkbar-button.about").attr("href", "{{ site.url }}/index.html");
         $(".linkbar-button.about > div").attr("title", "Return");
         $(".linkbar-button.about > div > i").attr("class", "icon-mail-reply");
       } else {
-        $(".linkbar-button.about").attr("href", "{{ site.url }}about.html");
+        $(".linkbar-button.about").attr("href", "{{ site.url }}/about.html");
       }
 
       $("[data-toggle='tooltip']").tooltip({html:true, placement: 'right'});
