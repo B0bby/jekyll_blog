@@ -18,15 +18,15 @@ In the end, I managed to solve three recon challenges.
 ## Jordan Wiens:
 The initial clue for this Judge was a website that displayed this text:
 
-![]({{ site.url }}images/jordanWiens.png)
+![]({{ site.url }}/images/jordanWiens.png)
 
 The comment at the bottom was 'key' to the solution; a news search revealed that Michael Vario had signed the PGP keys of a few notorious people. Michael Vario himself, though, was a red herring -- a search for Jordan Wiens' PGP key on a public keyserver revealed this:
 
-![]({{ site.url }}images/keyLookup.png)
+![]({{ site.url }}/images/keyLookup.png)
 
 Inside of Jordan's public key, there are beginning and ending bytes of a JFIF file -- FFD8 and FFD9, respectively. Deleting all leading and trailing data in a hex editor revealed the flag in the form of an image:
 
-![]({{ site.url }}images/wiensKey.jpg)
+![]({{ site.url }}/images/wiensKey.jpg)
 
 ## Julian Cohen:
 Searching for Julian's Twitter handle 'hockeyinjune' revealed a Wikipedia profile which linked to 'omnom.nom.com'. I think I solved this a bit differently than I've seen others do. Most would nslookup or ping omnom.nom.com, then follow the ip address to a site that would reveal the key. This is the most sensible method. I, however, attempted to banner grab omnom.nom.com with netcat, which also happened to reveal the key.
