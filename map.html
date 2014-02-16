@@ -14,6 +14,15 @@
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing"></script>
     <script>
 function initialize() {
+
+  var vector = new function() {
+    this.markers = []; 
+    this.polylines = []; 
+    this.polygons = []; 
+    this.rectangles = []; 
+    this.circles  = [];
+  }
+
   var image = {
     url: 'images/reggie.png',
     size: new google.maps.Size(20, 27),
@@ -22,8 +31,8 @@ function initialize() {
   };
 
   var mapOptions = {
-    center: new google.maps.LatLng(-34.397, 150.644),
-    zoom: 8
+    center: new google.maps.LatLng(40.508297, -88.991114),
+    zoom: 17
   };
 
   var map = new google.maps.Map(document.getElementById('map-canvas'),
@@ -64,7 +73,107 @@ function initialize() {
       editable: true
     }
   });
+
   drawingManager.setMap(map);
+
+// *****************************************
+// Get paths for every edited map vector
+// *****************************************
+
+  google.maps.event.addDomListener(drawingManager, 'markercomplete', function(marker) {
+    vector.markers.push(marker);
+  });
+  google.maps.event.addDomListener(drawingManager, 'polylinecomplete', function(polyline) {
+    vector.polylines.push(polyline);
+  });
+  google.maps.event.addDomListener(drawingManager, 'polygoncomplete', function(polygon) {
+    vector.polygons.push(polygon);
+  });
+  google.maps.event.addDomListener(drawingManager, 'rectanglecomplete', function(rectangle) {
+    vector.rectangles.push(rectangle);
+  });
+  google.maps.event.addDomListener(drawingManager, 'circlecomplete', function(circle) {
+    vector.circles.push(circle);
+  });
+
+// *****************************************
+// Add a custom 'export' button and function
+// *****************************************
+
+  var controlDiv = document.createElement('div');
+  controlDiv.style.padding = '5px';
+
+  var controlUI = document.createElement('div');
+  controlUI.style.backgroundColor = 'white';
+  controlUI.style.borderStyle = 'solid';
+  controlUI.style.borderWidth = '2px';
+  controlUI.style.cursor = 'pointer';
+  controlUI.style.textAlign = 'center';
+  controlUI.title = 'Click to set the map to Home';
+  controlDiv.appendChild(controlUI);
+
+  var controlText = document.createElement('div');
+  controlText.style.fontFamily = 'Arial,sans-serif';
+  controlText.style.fontSize = '12px';
+  controlText.style.paddingLeft = '4px';
+  controlText.style.paddingRight = '4px';
+  controlText.innerHTML = '<strong>Export</strong>';
+  controlUI.appendChild(controlText);
+
+  google.maps.event.addDomListener(controlUI, 'click', function() {
+    var vectorData = "map : [ \n";
+
+    if ( vector.markers.length !=0 ) {
+      vectorData = vectorData + "\t markers : [ \n";
+      for ( var i=0; i < vector.markers.length; i++ ){
+        vectorData = vectorData + "\t\t marker_" + i + " : [ \n";
+        vectorData = vectorData + "\t\t position : " + vector.markers[i].getPosition().toString() + " ]";
+        if ( i != vector.markers.length - 1 ) {
+          vectorData = vectorData + ", \n";
+        }
+      }
+      vectorData = vectorData + "\n\t ] \n";
+    }
+    // if ( vector.polylines.length !=0 ) {
+    //   vectorData = vectorData + "polylines : [ ";
+    //   for ( var i=0; i < vector.markers.length; i++ ){
+    //     vectorData = vectorData + "polyline_" + i + " : [ ";
+    //     vectorData = vectorData + vector.markers[i].getPosition().toString() + "\n";
+    //   }
+    // }
+    // if ( vector.polygons.length !=0 ) {
+    //   vectorData = vectorData + "polygons : [ ";
+    //   for ( var i=0; i < vector.markers.length; i++ ){
+    //     vectorData = vectorData + "polygon_" + i + " : [ ";
+    //     vectorData = vectorData + vector.markers[i].getPosition().toString() + "\n";
+    //   }
+    // }
+    if ( vector.rectangles.length !=0 ) {
+      vectorData = vectorData + "\t rectangles : [ \n";
+      for ( var i=0; i < vector.rectangles.length; i++ ){
+        vectorData = vectorData + "\t\t rectangle" + i + " : [ \n";
+        vectorData = vectorData + "\t\t bounds : " + vector.rectangles[i].getBounds().toString() + " ]";
+        if ( i != vector.rectangles.length - 1 ) {
+          vectorData = vectorData + ", \n";
+        }
+      }
+      vectorData = vectorData + "\n\t ] \n";
+    }
+    if ( vector.circles.length !=0 ) {
+      vectorData = vectorData + "\t circles : [ \n";
+      for ( var i=0; i < vector.circles.length; i++ ){
+        vectorData = vectorData + "circle_" + i + " : [ \n";
+        vectorData = vectorData + "center : " + vector.circles[i].getCenter().toString() + "," +
+                                  "radius : " + vector.circles[i].getRadius().toString() + "\n";
+        vectorData = vectorData + "]]";
+      }
+    }
+    vectorData = vectorData + "]";
+    alert( vectorData );
+  });
+
+  controlDiv.index = 1;
+  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
