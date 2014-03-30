@@ -10,27 +10,410 @@
         margin: 0px;
         padding: 0px
       }
+      .vectorList {
+        background-color: white;
+        height: 100%;
+        width: 100px;
+        top: 25px !important;
+      }
+      .vectorBox {
+        border: 1px solid white;
+        height: 50px;
+        width: 100%;
+      }
+      .vectorBox:hover {
+        background-color: #EC0033 !important;
+      }
+      .vectorBox.active {
+        background-color: #EC0033 !important;
+        border: 2px solid red;
+      }
+      .deleteBtn {
+        position: relative;
+        z-index: 1;
+        float: right;
+        height: 20px;
+        width: 20px;
+        background-color: red;
+      }
+      .toolOptions {
+        background-color: white;
+        width: 100%;
+        height: 25px;
+      }
+      .buttonHolder {
+        top: 25px !important;
+      }
       .custom-button {
         padding: 10px;
         background-color: white;
+      }
+      .custom-button.export {
       }
       .custom-button:hover {
         border: 2px black;
         background-color: #DFDFDF;
       }
+      .custom-button.active {
+        border: 2px black;
+        background-color: #DFDFDF;
+      }
     </style>
+
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing"></script>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
     <script>
       function initialize() {
 
-        var vector = new function() {
+        /* ****************
+         * GLOBAL VARIABLES
+         * **************** */
+
+         var currentSelectionID = -1;
+         var lastStrokeColor = "";
+         var lastFillColor = "";
+         var lastSelectionID = -1;
+         var fillColorHolder = "";
+         var strokeColorHolder = "";
+
+        var vectors = new function() {
           this.markers = []; 
           this.polylines = []; 
           this.polygons = []; 
           this.rectangles = []; 
           this.circles  = [];
+          this.active = [];
+
+          this.getVectorArrays = function() {
+            var arrays = [];
+            arrays.push(this.polylines);
+            arrays.push(this.polygons);
+            arrays.push(this.rectangles);
+            arrays.push(this.circles);
+
+            return arrays;
+          }
+
+          this.getVectors = function() {
+            var objects = [];
+
+            if ( this.polylines.length !=0 ) { 
+              for ( index in this.polylines) {
+                objects.push( this.polylines[index] );
+              }
+            }
+            if ( this.polygons.length !=0 ) { 
+              for ( index in this.polygons) {
+                objects.push( this.polygons[index] );
+              }
+            }
+            if ( this.rectangles.length !=0 ) { 
+              for ( index in this.rectangles) {
+                objects.push( this.rectangles[index] );
+              }
+            }
+            if ( this.circles.length !=0 ) { 
+              for ( index in this.circles) {
+                objects.push( this.circles[index] );
+              }
+            }
+
+            return objects;
+          }
         }
+
+        /* ***************************
+         * CREATE A BUNCH OF FUNCTIONS
+         * *************************** */
+
+        function range(start, stop, step){
+          var a=[start], b=start;
+          while(b<stop){b+=step;a.push(b)}
+          return a;
+        };
+
+        function setUpVectorList() {
+          var vectorList = document.createElement('div');
+          $( vectorList ).addClass( "vectorList" );
+
+          // Push custom buttons to map
+
+          vectorList.index = 3;
+          map.controls[google.maps.ControlPosition.RIGHT].push(vectorList);
+        }
+
+        function toolChangeUpdate() {
+          vectors.active[currentSelectionID].setOptions( {
+              strokeColor: lastFillColor,
+              fillColor: lastStrokeColor,
+              editable: false
+          });
+          $( ".vectorBox" ).removeClass( "active" );
+        }
+
+        function updateVectorList() {
+
+          $( ".vectorList" ).empty();
+
+          for ( vector in vectors.active ) {
+
+                var fColor = vectors.active[vector].fillColor;
+                var sColor = vectors.active[vector].strokeColor;
+                var opacity = vectors.active[vector].fillOpacity;
+                if (opacity === 'undefined')
+                  { opacity = 0.5; }
+
+                $( ".vectorList" ).append( "<div style='background-color: " 
+                                            + fColor + "; opacity: " 
+                                            + opacity + "' class='vectorBox' id='" 
+                                            + vector + "'></div>" );
+
+                $( "#" + vector ).append( "<div class='deleteBtn'></div>" );
+
+                $( "#" + vector ).hover( 
+                  function() {
+                    if ( !$( this ).hasClass( "active" )){
+                      var id = $( this ).attr( "id" );
+
+                      fillColorHolder = vectors.active[id].fillColor;
+                      strokeColorHolder = vectors.active[id].strokeColor;
+
+                      vectors.active[id].setOptions( {
+                        strokeColor: "#FFF",
+                        fillColor: "#EC0033"
+                      });
+                    }
+                  }, function() {
+                    if ( !$( this ).hasClass( "active" )){
+                      var id = $( this ).attr( "id" );
+                      vectors.active[id].setOptions( {
+                        strokeColor: strokeColorHolder,
+                        fillColor: fillColorHolder
+                      });
+                    }
+                  });
+
+                // Selecting an element from the right list
+                $( "#" + vector ).click( function() {
+
+                  var id = $( this ).attr( "id" );
+                  $( ".vectorBox" ).removeClass( "active" );
+                  $( this ).addClass( "active" );
+
+                  currentSelectionID = id;
+
+                  if (lastSelectionID === -1){
+                    lastSelectionID = currentSelectionID;
+                    lastFillColor = fillColorHolder;
+                    lastStrokeColor = strokeColorHolder;
+                  }
+
+                  vectors.active[lastSelectionID].setOptions( {
+                      strokeColor: lastFillColor,
+                      fillColor: lastStrokeColor,
+                      editable: false
+                  });
+
+                  vectors.active[id].setOptions( {
+                    strokeColor: "#FFF",
+                    fillColor: "#EC0033",
+                    editable: true
+                  });
+
+                  $( ".custom-button" ).removeClass( "active" );
+                  $( ".custom-button.edit" ).addClass( "active" );
+                  drawingManager.setDrawingMode(null);
+
+                  lastFillColor = fillColorHolder;
+                  lastStrokeColor = strokeColorHolder;
+                  lastSelectionID = id;
+                });
+
+                $( "#" + vector + " .deleteBtn" ).click( function() {
+                  var parent = $( this ).parent();
+                  var id = parent.attr( "id" );
+                  var varA = vectors.active[id];
+                  vectors.active[id].setMap(null);
+                  vectors.active.splice(id, 1);
+                  parent.nextUntil( "div:not(.vectorBox)" ).each( function() {
+                    var thisID = $( this ).attr( "id" );
+                    $( this ).attr( "id", thisID -1 );
+                  });
+                  parent.remove();
+                });
+
+                vector += 1;
+
+          } // END for x in vectors
+        }
+
+        function setUpTools() {
+
+          // Generate custom buttons
+
+          var customButtons = [
+            { "name":"edit",      "object": document.createElement('div') }, 
+            { "name":"marker",    "object": document.createElement('div') },
+            { "name":"polyline",  "object": document.createElement('div') },
+            { "name":"polygon",   "object": document.createElement('div') },
+            { "name":"rectangle", "object": document.createElement('div') },
+            { "name":"circle",    "object": document.createElement('div') },
+            { "name":"export",    "object": document.createElement('div') }
+            ];
+
+            var controlDiv = document.createElement('div');
+            $( controlDiv ).addClass( "buttonHolder" );
+
+          for ( var obj in customButtons ) {
+            var control = customButtons[obj].object;
+            var name = customButtons[obj].name;
+            control.className = "custom-button " + name;
+            control.style.cursor = 'pointer';
+            control.title = 'Click to export map JSON data';
+            controlDiv.appendChild(control);
+
+            var controlText = document.createElement('div');
+            controlText.innerHTML = '<strong>' + name + '</strong>';
+            control.appendChild(controlText);
+          }
+
+
+          // Bind events to custom buttons
+
+          // Select Edit 
+          google.maps.event.addDomListener( customButtons[0].object, 'click', function() {
+            drawingManager.setDrawingMode( null );
+            toolChangeUpdate();
+          });
+          // Select Marker
+          google.maps.event.addDomListener( customButtons[1].object, 'click', function() {
+            drawingManager.setDrawingMode( google.maps.drawing.OverlayType.MARKER );
+            toolChangeUpdate();
+          });
+          // Select Polyline
+          google.maps.event.addDomListener( customButtons[2].object, 'click', function() {
+            drawingManager.setDrawingMode( google.maps.drawing.OverlayType.POLYLINE );
+            toolChangeUpdate();
+          });
+          // Select Polygon
+          google.maps.event.addDomListener( customButtons[3].object, 'click', function() {
+            drawingManager.setDrawingMode( google.maps.drawing.OverlayType.POLYGON );
+            toolChangeUpdate();
+          });
+          // Select Rectangle
+          google.maps.event.addDomListener( customButtons[4].object, 'click', function() {
+            drawingManager.setDrawingMode( google.maps.drawing.OverlayType.RECTANGLE );
+            toolChangeUpdate();
+          });
+          // Select Circle
+          google.maps.event.addDomListener( customButtons[5].object, 'click', function() {
+            drawingManager.setDrawingMode( google.maps.drawing.OverlayType.CIRCLE );
+            toolChangeUpdate();
+          });
+          // Export JSON
+          google.maps.event.addDomListener( customButtons[6].object, 'click', function() {
+            exportVectors();
+            toolChangeUpdate();
+          });
+
+
+          // Update path data when an element is done being drawn.
+
+          google.maps.event.addDomListener(drawingManager, 'markercomplete', function(marker) {
+            vectors.markers.push(marker);
+
+          });
+          google.maps.event.addDomListener(drawingManager, 'polylinecomplete', function(polyline) {
+            updateVectorInfo(polyline);
+          });
+          google.maps.event.addDomListener(drawingManager, 'polygoncomplete', function(polygon) {
+            updateVectorInfo(polygon);
+          });
+          google.maps.event.addDomListener(drawingManager, 'rectanglecomplete', function(rectangle) {
+            updateVectorInfo(rectangle);
+          });
+          google.maps.event.addDomListener(drawingManager, 'circlecomplete', function(circle) {
+            updateVectorInfo(circle);
+          });
+
+
+          var toolOptions = document.createElement('div');
+          $( toolOptions ).addClass( "toolOptions" );
+
+
+          // Push custom buttons to map
+
+          toolOptions.index = 1;
+          map.controls[google.maps.ControlPosition.TOP].push(toolOptions);
+          controlDiv.index = 2;
+          map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlDiv);
+        }
+
+
+        function updateVectorInfo( newVector ) {
+          vectors.active.push(newVector);
+          vectors.circles.push(newVector);
+          updateVectorList();
+        }
+
+
+        function exportVectors() {
+          var vectorData = "map : [ \n";
+
+          if ( vectors.markers.length !=0 ) {
+            vectorData = vectorData + "\t markers : [ \n";
+            for ( var i=0; i < vectors.markers.length; i++ ){
+              vectorData = vectorData + "\t\t marker_" + i + " : [ \n";
+              vectorData = vectorData + "\t\t position : " + vectors.markers[i].getPosition().toString() + " ]";
+              if ( i != vectors.markers.length - 1 ) {
+                vectorData = vectorData + ", \n";
+              }
+            }
+            vectorData = vectorData + "\n\t ] \n";
+          }
+          if ( vectors.polylines.length !=0 ) {
+            vectorData = vectorData + "polylines : [ ";
+            for ( var i=0; i < vectors.markers.length; i++ ){
+              vectorData = vectorData + "polyline_" + i + " : [ ";
+              vectorData = vectorData + vectors.markers[i].getPosition().toString() + "\n";
+            }
+          }
+          if ( vectors.polygons.length !=0 ) {
+            vectorData = vectorData + "polygons : [ ";
+            for ( var i=0; i < vectors.markers.length; i++ ){
+              vectorData = vectorData + "polygon_" + i + " : [ ";
+              vectorData = vectorData + vectors.markers[i].getPosition().toString() + "\n";
+            }
+          }
+          if ( vectors.rectangles.length !=0 ) {
+            vectorData = vectorData + "\t rectangles : [ \n";
+            for ( var i=0; i < vectors.rectangles.length; i++ ){
+              vectorData = vectorData + "\t\t rectangle" + i + " : [ \n";
+              vectorData = vectorData + "\t\t bounds : " + vectors.rectangles[i].getBounds().toString() + " ]";
+              if ( i != vectors.rectangles.length - 1 ) {
+                vectorData = vectorData + ", \n";
+              }
+            }
+            vectorData = vectorData + "\n\t ] \n";
+          }
+          if ( vectors.circles.length !=0 ) {
+            vectorData = vectorData + "\t circles : [ \n";
+            for ( var i=0; i < vectors.circles.length; i++ ){
+              vectorData = vectorData + "circle_" + i + " : [ \n";
+              vectorData = vectorData + "center : " + vectors.circles[i].getCenter().toString() + "," +
+                                        "radius : " + vectors.circles[i].getRadius().toString() + "\n";
+              vectorData = vectorData + "]]";
+            }
+          }
+          vectorData = vectorData + "]";
+          alert( vectorData );
+        }
+
+
+      /* *******************************
+       * MAP STARTS GETTING PUT TOGETHER
+       * ******************************* */
 
       /* Custom Reggie icon */
         var image = {
@@ -59,183 +442,58 @@
             draggable: true
           },
           circleOptions: {
-            fillColor: '#ffff00',
-            fillOpacity: 1,
-            strokeWeight: 5,
-            clickable: false,
-            editable: true,
-            zIndex: 1
+            fillColor: '#26537C',
+            strokeColor: '#043A6B',
+            fillOpacity: 0.5,
+            strokeWeight: 2
           },
           polygonOptions: {
-            editable: true
+            fillColor: '#329D27',
+            strokeColor: '#0D8800',
+            fillOpacity: 0.5,
+            strokeWeight: 2
           },
           polylineOptions: {
-            editable: true
+            strokeColor: '#280671'
           },
           rectangleOptions: {
-            editable: true
+            fillColor: '#472B83',
+            strokeColor: '#280671',
+            fillOpacity: 0.5,
+            strokeWeight: 2
           }
         });
 
         drawingManager.setMap(map);
 
-      // *****************************************
-      // Get paths for every edited map vector
-      // *****************************************
+        setUpTools();
+        setUpVectorList();
 
-        google.maps.event.addDomListener(drawingManager, 'markercomplete', function(marker) {
-          vector.markers.push(marker);
-        });
-        google.maps.event.addDomListener(drawingManager, 'polylinecomplete', function(polyline) {
-          vector.polylines.push(polyline);
-          drawingManager.setDrawingMode(null);
-        });
-        google.maps.event.addDomListener(drawingManager, 'polygoncomplete', function(polygon) {
-          vector.polygons.push(polygon);
-          drawingManager.setDrawingMode(null);
-        });
-        google.maps.event.addDomListener(drawingManager, 'rectanglecomplete', function(rectangle) {
-          vector.rectangles.push(rectangle);
-          drawingManager.setDrawingMode(null);
-        });
-        google.maps.event.addDomListener(drawingManager, 'circlecomplete', function(circle) {
-          vector.circles.push(circle);
-          drawingManager.setDrawingMode(null);
-        });
-
-      // *****************************************
-      // Custom Buttons
-      // *****************************************
-
-      var customButtons = [
-        { "name":"export",    "object": document.createElement('div') },
-        { "name":"move",      "object": document.createElement('div') }, 
-        { "name":"marker",    "object": document.createElement('div') },
-        { "name":"polyline",  "object": document.createElement('div') },
-        { "name":"polygon",   "object": document.createElement('div') },
-        { "name":"rectangle", "object": document.createElement('div') },
-        { "name":"circle",    "object": document.createElement('div') }
-        ];
-
-        var controlDiv = document.createElement('div');
-        controlDiv.style.padding = '5px';
-
-      for ( var obj in customButtons ) {
-        var control = customButtons[obj].object;
-        var name = customButtons[obj].name;
-        control.className = "custom-button " + name;
-        control.style.cursor = 'pointer';
-        control.title = 'Click to export map JSON data';
-        controlDiv.appendChild(control);
-
-        var controlText = document.createElement('div');
-        controlText.innerHTML = '<strong>' + name + '</strong>';
-        control.appendChild(controlText);
-      }
-
-      // *****************************************
-      // Custom Events
-      // *****************************************
-
-      // Export JSON
-        google.maps.event.addDomListener(customButtons[0].object, 'click', function() {
-          var vectorData = "map : [ \n";
-
-          if ( vector.markers.length !=0 ) {
-            vectorData = vectorData + "\t markers : [ \n";
-            for ( var i=0; i < vector.markers.length; i++ ){
-              vectorData = vectorData + "\t\t marker_" + i + " : [ \n";
-              vectorData = vectorData + "\t\t position : " + vector.markers[i].getPosition().toString() + " ]";
-              if ( i != vector.markers.length - 1 ) {
-                vectorData = vectorData + ", \n";
-              }
-            }
-            vectorData = vectorData + "\n\t ] \n";
-          }
-          if ( vector.polylines.length !=0 ) {
-            vectorData = vectorData + "polylines : [ ";
-            for ( var i=0; i < vector.markers.length; i++ ){
-              vectorData = vectorData + "polyline_" + i + " : [ ";
-              vectorData = vectorData + vector.markers[i].getPosition().toString() + "\n";
-            }
-          }
-          if ( vector.polygons.length !=0 ) {
-            vectorData = vectorData + "polygons : [ ";
-            for ( var i=0; i < vector.markers.length; i++ ){
-              vectorData = vectorData + "polygon_" + i + " : [ ";
-              vectorData = vectorData + vector.markers[i].getPosition().toString() + "\n";
-            }
-          }
-          if ( vector.rectangles.length !=0 ) {
-            vectorData = vectorData + "\t rectangles : [ \n";
-            for ( var i=0; i < vector.rectangles.length; i++ ){
-              vectorData = vectorData + "\t\t rectangle" + i + " : [ \n";
-              vectorData = vectorData + "\t\t bounds : " + vector.rectangles[i].getBounds().toString() + " ]";
-              if ( i != vector.rectangles.length - 1 ) {
-                vectorData = vectorData + ", \n";
-              }
-            }
-            vectorData = vectorData + "\n\t ] \n";
-          }
-          if ( vector.circles.length !=0 ) {
-            vectorData = vectorData + "\t circles : [ \n";
-            for ( var i=0; i < vector.circles.length; i++ ){
-              vectorData = vectorData + "circle_" + i + " : [ \n";
-              vectorData = vectorData + "center : " + vector.circles[i].getCenter().toString() + "," +
-                                        "radius : " + vector.circles[i].getRadius().toString() + "\n";
-              vectorData = vectorData + "]]";
-            }
-          }
-          vectorData = vectorData + "]";
-          alert( vectorData );
-        });
-
-      // Select Move 
-        google.maps.event.addDomListener(customButtons[1].object, 'click', function() {
-          drawingManager.setDrawingMode(null);
-        });
-      // Select Marker
-        google.maps.event.addDomListener(customButtons[2].object, 'click', function() {
-          drawingManager.setDrawingMode(google.maps.drawing.OverlayType.MARKER);
-        });
-      // Select Polyline
-        google.maps.event.addDomListener(customButtons[3].object, 'click', function() {
-          drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYLINE);
-        });
-        // Select Polygon
-        google.maps.event.addDomListener(customButtons[4].object, 'click', function() {
-          drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-        });
-        // Select Rectangle
-        google.maps.event.addDomListener(customButtons[5].object, 'click', function() {
-          drawingManager.setDrawingMode(google.maps.drawing.OverlayType.RECTANGLE);
-        });
-        // Select Circle
-        google.maps.event.addDomListener(customButtons[6].object, 'click', function() {
-          drawingManager.setDrawingMode(google.maps.drawing.OverlayType.CIRCLE);
-        });
-
-
-        controlDiv.index = 1;
-        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
 
-    <script>
-      $( window ).load( function() {
-        $( ".custom-button" ).on( 'click', function(e) {
-          e.preventDefault();
-          alert( "Hola" );
-          $( ".custom-button" ).removeClass("active");
-          $( this ).addClass("active");
-        });
-      });
     </script>
 
   </head>
   <body>
     <div id="map-canvas"></div>
+
+    <script>
+
+      $( window ).load( function() {
+        setTimeout( function() {
+
+          $( ".custom-button.edit" ).addClass( "active" );
+
+          $( ".custom-button" ).on( 'click', function(e) {
+            e.preventDefault();
+            $( ".custom-button" ).removeClass( "active" );
+            $( this ).addClass( "active" );
+          });
+
+        }, 500);
+      });
+    </script>
   </body>
 </html>
