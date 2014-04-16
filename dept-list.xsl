@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                              xmlns:a="http://www.digitalmeasures.com/schema/data"
-                              xmlns:d="http://www.digitalmeasures.com/schema/data-metadata">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="html" indent="yes" encoding="UTF-8"/>
+
+<xsl:param name="dept"></xsl:param>
 
 <xsl:template match="*">
 
@@ -17,98 +18,84 @@
           font-weight: normal;
           font-style: normal;
         }
-        .icon-phone:before {
+        .staff_records {
+            border-top: 1px solid #CCC;
+        }
+        .staff_records .icon-phone:before {
             font-family: 'isu-icons';
-            float: left;
             margin-right: 8px;
             margin-top: 3px;
             font-size: 12px;
             color: #555;
             content: "\e064";
         }
-        .icon-email:before {
+        .staff_records .icon-email:before {
             font-family: 'isu-icons';
-            float: left;
             margin-right: 8px;
             margin-top: 5px;
             font-size: 12px;
             color: #555;
             content: "\e053";
         }
-        .staff_records {
-            border-top: 1px solid #CCC;
-        }
-        .record {
+        .staff_records .record {
             border: 1px solid #CCC;
             padding: 5px;
             border-top: none;
             display: inline-block;
             width: 310px;
         }
-        .record_image img {
+        .staff_records .record_image img {
             float: left;
             width: 100px;
             height: 160px;
             padding: 10px;
         }
-        .record .name {
+        .staff_records .record .name {
             font-weight: bold;
         }
-        .record .email {
+        .staff_records .record .email {
             margin-top: 10px;
         }
-        .record .dept {
+        .staff_records .record .dept {
         }
-        .record .spec {
+        .staff_records .record .spec {
             font-style: italic;
         }
-        ul {
+        .staff_records ul {
             list-style-type: none;
         }
     </style>
 
+    <h2><xsl:value-of select="$dept" /></h2>
+
     <div class="staff_records">
-        <xsl:apply-templates select="/a:Data/a:Record" />
+        <xsl:apply-templates select="/DM/PERSON" />
     </div>
 
 </xsl:template>
 
-<xsl:template match="/a:Data/a:Record">
-
-    <div class="record">
-        <xsl:apply-templates select="a:PCI"/>
-    </div>
+<xsl:template match="/DM/PERSON">
     
-</xsl:template>
+    <xsl:if test="INFO/DEP!='' and $dept!='' and contains(INFO/DEP, $dept)">
+        <div class="record">
+            <xsl:if test="UPLOAD_PHOTO != ''">
+                <div class="record_image">
+                    <img src="{concat( 'http://dm.illinoisstate.edu/education/', UPLOAD_PHOTO ) }" />
+                </div>
+            </xsl:if>
 
-<xsl:template match="a:PCI">
+            <ul class="record_info">
+                <li class="name"><xsl:value-of select="concat( FNAME, ' ', LNAME )" /></li>
+                <li class="email"><span class="icon-email"></span><a href="mailto:{EMAIL}"><xsl:value-of select="EMAIL" /></a></li>
 
-    <xsl:if test="a:UPLOAD_PHOTO != ''">
-        <div class="record_image">
-            <img src="{concat( 'http://dm.illinoisstate.edu/education/', a:UPLOAD_PHOTO ) }" />
+                <xsl:if test="PHONE != ''">
+                    <li class="phone"><span class="icon-phone"></span><span>
+                        <xsl:value-of select="PHONE" />
+                    </span></li>
+                </xsl:if>
+            </ul>
         </div>
     </xsl:if>
-
-    <ul class="record_info">
-        <li class="name"><xsl:value-of select="concat( a:FNAME, ' ', a:LNAME )" /></li>
-
-        <xsl:apply-templates select="(../a:ADMIN/a:ADMIN_DEP)[1]" />
-
-        <li class="email"><span class="icon-email"></span><a href="mailto:{a:EMAIL}"><xsl:value-of select="a:EMAIL" /></a></li>
-
-        <xsl:if test="a:OPHONE3 != ''">
-            <li class="phone"><span class="icon-phone"></span><div>
-                <xsl:value-of select="concat( a:OPHONE1, '-', a:OPHONE2, '-', a:OPHONE3 )" />
-            </div></li>
-        </xsl:if>
-    </ul>
-
-</xsl:template>
-
-<xsl:template match="a:Record/a:ADMIN/a:ADMIN_DEP">
-
-        <li class="dept"><xsl:value-of select="a:DEP" /></li>
-        <li class="spec"><xsl:value-of select="a:SPEC_AREA" /></li>
 
 </xsl:template>
 
