@@ -7,6 +7,7 @@ function initialize() {
          var vectorIDCounter = 0;
          var selectedVectorID = -1;
          var selectedFilter = "all";
+         var vectors = [];
          var filteredVectors = [];
 
          var lastStrokeColor = "";
@@ -16,54 +17,6 @@ function initialize() {
          var strokeColorHolder = "";
 
          $( "#exportModal" ).easyModal();
-
-        var vectors = new function() {
-          this.markers = []; 
-          this.polylines = []; 
-          this.polygons = []; 
-          this.rectangles = []; 
-          this.circles  = [];
-          this.active = [];
-
-          // Get an array with all vector data
-          this.getVectorArrays = function() {
-            var arrays = [];
-            arrays.push(this.polylines);
-            arrays.push(this.polygons);
-            arrays.push(this.rectangles);
-            arrays.push(this.circles);
-
-            return arrays;
-          }
-
-          // 
-          this.getVectors = function() {
-            var objects = [];
-
-            if ( this.polylines.length !=0 ) { 
-              for ( index in this.polylines) {
-                objects.push( this.polylines[index] );
-              }
-            }
-            if ( this.polygons.length !=0 ) { 
-              for ( index in this.polygons) {
-                objects.push( this.polygons[index] );
-              }
-            }
-            if ( this.rectangles.length !=0 ) { 
-              for ( index in this.rectangles) {
-                objects.push( this.rectangles[index] );
-              }
-            }
-            if ( this.circles.length !=0 ) { 
-              for ( index in this.circles) {
-                objects.push( this.circles[index] );
-              }
-            }
-
-            return objects;
-          }
-        }
 
         /* ***************************
          * CREATE A BUNCH OF FUNCTIONS
@@ -96,6 +49,8 @@ function initialize() {
               var pt = element.getPath().getArray()[x];
               bounds.extend( pt );
             }
+            center = bounds.getCenter();
+
           }
           catch ( err ){}
 
@@ -105,121 +60,186 @@ function initialize() {
         }
 
 
+        function filterIncludesVector( vectorType ){
+          filterTable = [
+          { "filterName":"markers", "includes":[ "marker" ] },
+          { "filterName":"lines",   "includes":[ "line" ] },
+          { "filterName":"shapes",  "includes":[ "polygon", "rectangle", "circle" ] },
+          { "filterName":"all",     "includes":[ "marker", "line", "polygon", "rectangle", "circle" ] }
+          ]
+
+          for ( filter in filterTable ) {
+            if ( filterTable[filter].filterName == selectedFilter ) {
+              for ( type in filterTable[filter].includes ){
+                if ( filterTable[filter].includes[type] === vectorType ) {
+                  return true;
+                }
+              }
+            }
+          }
+          return false;
+        }
+
+
+        function getObjectByName( json, name ){
+          for ( index in json ) {
+            if ( json[index].name === name ){
+              return json[index];
+            }
+          }
+          return -1;
+        }
+
+
+        function getVectorTypeByID( id ){
+          for ( index in vectors ) {
+            if ( id === vectors[index].vectorID.toString() ){
+              return vectors[index].vectorType;
+            }
+          }
+          return -1;
+        }
+
+
+        function getVectorByID( id ) {
+          for ( index in vectors ) {
+            if ( id === vectors[index].vectorID.toString() ){
+              return vectors[index].vector;
+            }
+          }
+          return -1;
+        }
+
+
+        function getFilteredArrayPositionFromID( id ){
+          for ( index in filteredVectors ){
+            if ( id === filteredVectors[index].vectorID.toString() ){
+              return index;
+            }
+          }
+          return -1;
+        }
+
+
+        function getVectorIndexFromListID( id ){
+          for ( index in vectors ){
+            if ( id === vectors[index].vectorID.toString() ){
+              return index;
+            }
+          }
+          return -1;
+        }
+
+
         function range(start, stop, step){
           var a=[start], b=start;
           while(b<stop){b+=step;a.push(b)}
           return a;
         };
 
-        function setUpRightPanel() {
-          var rightPanel = document.createElement('div');
-          $( rightPanel ).addClass( "rightPanel" );
 
-          var vectorList = document.createElement('div');
-          $( vectorList ).addClass( "vectorList" );
+        function filterVectors() {
+          filteredVectors = [];
 
-          var filterButtons = [
-            { "name":"markers", "object": document.createElement('div') }, 
-            { "name":"lines",   "object": document.createElement('div') },
-            { "name":"shapes",  "object": document.createElement('div') },
-            { "name":"all",     "object": document.createElement('div') }
-            ];
+          for ( index in vectors ){
+            vectorType = vectors[index].vectorType;
 
-          var filters = document.createElement('div');
-          $( filters ).addClass( "filters" );
-          filters.innerHTML = '<strong> Filters </strong>';
+            if ( filterIncludesVector( vectorType ) ){
+              var indess = this.index;
+              var length = vectors.length;
+              filteredVectors.push( vectors[index] );
+              vectors[index].vector.setVisible( true );
+            }
+            else {
+              vectors[index].vector.setVisible( false );
+            }
+          }
+          return filteredVectors;
+        }
 
-          for ( var obj in filterButtons ) {
-            var control = filterButtons[obj].object;
-            var name = filterButtons[obj].name;
-            control.className = "filter-button " + name;
-            control.style.cursor = 'pointer';
-            filters.appendChild(control);
 
-            var controlText = document.createElement('div');
-            controlText.innerHTML = '<strong>' + name + '</strong>';
-            control.appendChild(controlText);
+        function callPropertiesDropdown() {
+
+          var vectorType = getVectorTypeByID( selectedVectorID );
+
+          $( ".propList" ).empty();
+
+          $( ".propCloseBtn" ).click( function() {
+            $( ".properties" ).slideUp();
+            toolChangeUpdate();
+          });
+
+          $( ".propList" ).append( "<h1>Properties</h1>" );
+          $( ".propList" ).append( "<div class='fillSelectAnchor'><input type='text' id='fillColor'/> Fill color</div>" );
+          $( ".propList" ).append( "<div class='strokeSelectAnchor'><input type='text' id='strokeColor'/> Stroke color</div>" );
+
+
+          $("#fillColor").spectrum({
+              color: lastFillColor,
+              change: function( color ) {
+                var selectedVector = getVectorByID( selectedVectorID );
+                lastFillColor = color.toHexString();
+                selectedVector.setOptions( {
+                  fillColor: color.toHexString()
+                });
+                updateVectorList();
+              }
+          });
+
+          $("#strokeColor").spectrum({
+              color: lastStrokeColor,
+              change: function( color ) {
+                var selectedVector = getVectorByID( selectedVectorID );
+                lastStrokeColor = color.toHexString();
+                selectedVector.setOptions( {
+                  strokeColor: color.toHexString()
+                });
+                updateVectorList();
+              }
+          });
+
+          if ( vectorType === "marker" ) {
+            $("#fillColor").spectrum("disable");
+            $("#strokeColor").spectrum("disable");
+          }
+          if ( vectorType === "line" ) {
+            $("#fillColor").spectrum("disable");
           }
 
-          // Filter Markers 
-          google.maps.event.addDomListener( filterButtons[0].object, 'click', function() {
-            selectedFilter = "markers";
-            toolChangeUpdate();
-            updateVectorList();
-          });
-          // Filter Lines 
-          google.maps.event.addDomListener( filterButtons[1].object, 'click', function() {
-            selectedFilter = "lines";
-            toolChangeUpdate();
-            updateVectorList();
-          });
-          // Filter Shapes 
-          google.maps.event.addDomListener( filterButtons[2].object, 'click', function() {
-            selectedFilter = "shapes";
-            toolChangeUpdate();
-            updateVectorList();
-          });
-          // Filter All 
-          google.maps.event.addDomListener( filterButtons[3].object, 'click', function() {
-            selectedFilter = "all";
-            toolChangeUpdate();
-            updateVectorList();
-          });
-
-          rightPanel.appendChild(filters);
-          rightPanel.appendChild(vectorList);
-
-          rightPanel.index = 4;
-          map.controls[google.maps.ControlPosition.RIGHT].push(rightPanel);
+          $( ".properties" ).slideDown();
         }
+
 
         function toolChangeUpdate() {
           if ( selectedVectorID !== -1 ){
             lastSelectionID = -1;
-            vectors.active[selectedVectorID][0].setOptions( {
-                strokeColor: lastFillColor,
-                fillColor: lastStrokeColor,
+            vectors[selectedVectorID].vector.setOptions( {
+                strokeColor: lastStrokeColor,
+                fillColor: lastFillColor,
                 editable: false
             });
           }
           $( ".vectorBox" ).removeClass( "active" );
+          $( ".properties" ).slideUp();
         }
+
 
         // A lot of things happen here. If this comment is 
         //   left vague, I apologize.
         function updateVectorList() {
 
-          filteredVectors = [];
+          filteredVectors = filterVectors();
 
           $( ".vectorList" ).empty();
 
-          if ( selectedFilter !== "all" ){
-            for ( id in vectors.active ){
-              var vectorType = vectors.active[id][1];
-              var vector = vectors.active[id][0];
+          for ( index in filteredVectors ) {
+            var thisVector = filteredVectors[index].vector;
 
-              if ( vectorType === selectedFilter ){
-                filteredVectors.push( vectors.active[id] );
-                vector.setVisible( true );
-              }
-              else {
-                vector.setVisible( false );
-              }
-            }
-          }
-          else {
-            filteredVectors = vectors.active;
-            for ( id in vectors.active ){
-              var vector = vectors.active[id][0];
-              vector.setVisible( true );
-            }
-          }
+            var fColor = thisVector.fillColor;
+            var sColor = thisVector.strokeColor;
+            var opacity = thisVector.fillOpacity;
+            var vectorID = filteredVectors[index].vectorID;
 
-          for ( vector in filteredVectors ) {
-            var fColor = filteredVectors[vector][0].fillColor;
-            var sColor = filteredVectors[vector][0].strokeColor;
-            var opacity = filteredVectors[vector][0].fillOpacity;
-            var vectorID = filteredVectors[vector][2];
             if (opacity === 'undefined')
               { opacity = 0.5; }
 
@@ -236,10 +256,10 @@ function initialize() {
                   var id = $( this ).attr( "id" );
                   var index = getFilteredArrayPositionFromID( id );
 
-                  fillColorHolder = filteredVectors[index][0].fillColor;
-                  strokeColorHolder = filteredVectors[index][0].strokeColor;
+                  fillColorHolder = filteredVectors[index].vector.fillColor;
+                  strokeColorHolder = filteredVectors[index].vector.strokeColor;
 
-                  filteredVectors[index][0].setOptions( {
+                  filteredVectors[index].vector.setOptions( {
                     strokeColor: "#FFF",
                     fillColor: "#EC0033"
                   });
@@ -249,7 +269,7 @@ function initialize() {
                   var id = $( this ).attr( "id" );
                   var index = getFilteredArrayPositionFromID( id );
 
-                  filteredVectors[index][0].setOptions( {
+                  filteredVectors[index].vector.setOptions( {
                     strokeColor: strokeColorHolder,
                     fillColor: fillColorHolder
                   });
@@ -273,13 +293,13 @@ function initialize() {
                 lastStrokeColor = strokeColorHolder;
               }
 
-              filteredVectors[lastSelectionID][0].setOptions( {
-                  strokeColor: lastFillColor,
-                  fillColor: lastStrokeColor,
+              filteredVectors[lastSelectionID].vector.setOptions( {
+                  strokeColor: lastStrokeColor,
+                  fillColor: lastFillColor,
                   editable: false
               });
 
-              filteredVectors[index][0].setOptions( {
+              filteredVectors[index].vector.setOptions( {
                 strokeColor: "#FFF",
                 fillColor: "#EC0033",
                 editable: true
@@ -290,166 +310,197 @@ function initialize() {
 
               drawingManager.setDrawingMode(null);
 
-              centerOnElement( filteredVectors[index][0]);
+              centerOnElement( filteredVectors[index].vector );
 
               lastFillColor = fillColorHolder;
               lastStrokeColor = strokeColorHolder;
               lastSelectionID = index;
+
+              callPropertiesDropdown();
+
             });
 
             $( "#" + vectorID + " .deleteBtn" ).click( function() {
               var parent = $( this ).parent();
               var id = parent.attr( "id" );
               var index = getFilteredArrayPositionFromID( id );
-              var aIndex = getActiveArrayPositionFromID( id );
-              var varA = filteredVectors[index][0];
-              filteredVectors[index][0].setMap(null);
+              var aIndex = getVectorIndexFromListID( id );
+              filteredVectors[index].vector.setMap(null);
               filteredVectors.splice(index, 1);
-              vectors.active.splice(aIndex, 1);
-              // parent.nextUntil( "div:not(.vectorBox)" ).each( function() {
-              //   var thisID = $( this ).attr( "id" );
-              //   $( this ).attr( "id", thisID -1 );
-              // });
+              vectors.splice(aIndex, 1);
+
               parent.remove();
             });
 
           } // END for x in vectors
         }
 
-        function getFilteredArrayPositionFromID( id ){
-          for ( index in filteredVectors ){
-            if ( id === filteredVectors[index][2].toString() ){
-              return index;
-            }
-          }
-          return -1;
-        }
 
-        function getActiveArrayPositionFromID( id ){
-          for ( index in vectors.active ){
-            if ( id === vectors.active[index][2].toString() ){
-              return index;
-            }
-          }
-          return -1;
-        }
+        function createCustomUI() {
 
-        function setUpTools() {
+          // CREATE HTML FOR CUSTOM UI
+          var rightPanel = document.createElement('div');
+          $( rightPanel ).addClass( "rightPanel" );
 
-          // Generate custom buttons
+          var filters = document.createElement('div');
+          $( filters ).addClass( "filters" );
+          filters.innerHTML = '<strong> Filters </strong>';
 
-          var customButtons = [
-            { "name":"edit",      "object": document.createElement('div') }, 
-            { "name":"marker",    "object": document.createElement('div') },
-            { "name":"polyline",  "object": document.createElement('div') },
-            { "name":"polygon",   "object": document.createElement('div') },
-            { "name":"rectangle", "object": document.createElement('div') },
-            { "name":"circle",    "object": document.createElement('div') },
-            { "name":"export",    "object": document.createElement('div') },
-            { "name":"import",    "object": document.createElement('div') }
-            ];
+          var vectorList = document.createElement('div');
+          $( vectorList ).addClass( "vectorList" );
 
           var controlDiv = document.createElement('div');
           $( controlDiv ).addClass( "buttonHolder" );
 
+          var properties = document.createElement('div');
+          $( properties ).addClass( "properties" );
+
+          var closeProperties = document.createElement('div');
+          $( closeProperties ).addClass( "propCloseBtn" );
+          $( closeProperties ).text( "Close" );
+          closeProperties.style.cursor = 'pointer';
+
+          var propList = document.createElement('div');
+          $( propList ).addClass( "propList" );
+
+          properties.appendChild(propList);
+          properties.appendChild(closeProperties);
+          rightPanel.appendChild(filters);
+          rightPanel.appendChild(vectorList);
+
+
+          var customButtons = [
+            { "name":"edit",      "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv }, 
+            { "name":"marker",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"polyline",  "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"polygon",   "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"rectangle", "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"circle",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"export",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"import",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
+            { "name":"markers",   "object": document.createElement('div'), "cssClass":"filter-button", "container":filters }, 
+            { "name":"lines",     "object": document.createElement('div'), "cssClass":"filter-button", "container":filters },
+            { "name":"shapes",    "object": document.createElement('div'), "cssClass":"filter-button", "container":filters },
+            { "name":"all",       "object": document.createElement('div'), "cssClass":"filter-button", "container":filters }
+            ];
+
+
+          // FILL HTML WITH CUSTOM BUTTONS
           for ( var obj in customButtons ) {
             var control = customButtons[obj].object;
             var name = customButtons[obj].name;
-            control.className = "custom-button " + name;
+            var cssClass = customButtons[obj].cssClass;
+            var container = customButtons[obj].container;
+            control.className = cssClass + " " + name;
             control.style.cursor = 'pointer';
-            controlDiv.appendChild(control);
+            container.appendChild(control);
 
             var controlText = document.createElement('div');
             controlText.innerHTML = '<strong>' + name + '</strong>';
             control.appendChild(controlText);
           }
 
+
+          // BIND FUNCTIONS TO DRAWING BUTTONS
           // Select Edit 
-          google.maps.event.addDomListener( customButtons[0].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "edit" ).object, 'click', function() {
             drawingManager.setDrawingMode( null );
             toolChangeUpdate();
           });
           // Select Marker
-          google.maps.event.addDomListener( customButtons[1].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "marker" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.MARKER );
             toolChangeUpdate();
           });
           // Select Polyline
-          google.maps.event.addDomListener( customButtons[2].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "polyline" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.POLYLINE );
             toolChangeUpdate();
           });
           // Select Polygon
-          google.maps.event.addDomListener( customButtons[3].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "polygon" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.POLYGON );
             toolChangeUpdate();
           });
           // Select Rectangle
-          google.maps.event.addDomListener( customButtons[4].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "rectangle" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.RECTANGLE );
             toolChangeUpdate();
           });
           // Select Circle
-          google.maps.event.addDomListener( customButtons[5].object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "circle" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.CIRCLE );
             toolChangeUpdate();
           });
           // Export JSON
-          google.maps.event.addDomListener( customButtons[6].object, 'click', function( e ) {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "import" ).object, 'click', function( e ) {
             exportVectors( e );
             toolChangeUpdate();
           });
           // import JSON
-          google.maps.event.addDomListener( customButtons[7].object, 'click', function( e ) {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "export" ).object, 'click', function( e ) {
             exportVectors( e );
             toolChangeUpdate();
           });
 
-          // Update path data when an element is done being drawn.
+
+          // BIND FUNCTIONS TO FILTER BUTTONS
+          // Filter Markers 
+          google.maps.event.addDomListener( getObjectByName( customButtons, "markers" ).object, 'click', function() {
+            selectedFilter = "markers";
+            toolChangeUpdate();
+            updateVectorList();
+          });
+          // Filter Lines 
+          google.maps.event.addDomListener( getObjectByName( customButtons, "lines" ).object, 'click', function() {
+            selectedFilter = "lines";
+            toolChangeUpdate();
+            updateVectorList();
+          });
+          // Filter Shapes 
+          google.maps.event.addDomListener( getObjectByName( customButtons, "shapes" ).object, 'click', function() {
+            selectedFilter = "shapes";
+            toolChangeUpdate();
+            updateVectorList();
+          });
+          // Filter All 
+          google.maps.event.addDomListener( getObjectByName( customButtons, "all" ).object, 'click', function() {
+            selectedFilter = "all";
+            toolChangeUpdate();
+            updateVectorList();
+          });
+
+
+          // BIND FUNCTIONS TO DRAWING COMPLETION EVENTS
           google.maps.event.addDomListener(drawingManager, 'markercomplete', function(marker) {
-            updateVectorInfo(marker, "markers", vectorIDCounter++ );
+            updateVectorInfo(marker, "marker", vectorIDCounter++ );
           });
           google.maps.event.addDomListener(drawingManager, 'polylinecomplete', function(polyline) {
-            updateVectorInfo(polyline, "lines", vectorIDCounter++ );
+            updateVectorInfo(polyline, "line", vectorIDCounter++ );
           });
           google.maps.event.addDomListener(drawingManager, 'polygoncomplete', function(polygon) {
-            updateVectorInfo(polygon, "shapes", vectorIDCounter++ );
+            updateVectorInfo(polygon, "polygon", vectorIDCounter++ );
           });
           google.maps.event.addDomListener(drawingManager, 'rectanglecomplete', function(rectangle) {
-            updateVectorInfo(rectangle, "shapes", vectorIDCounter++ );
+            updateVectorInfo(rectangle, "rectangle", vectorIDCounter++ );
           });
           google.maps.event.addDomListener(drawingManager, 'circlecomplete', function(circle) {
-            updateVectorInfo(circle, "shapes", vectorIDCounter++ );
+            updateVectorInfo(circle, "circle", vectorIDCounter++ );
           });
 
-          var toolOptions = document.createElement('div');
-          $( toolOptions ).addClass( "toolOptions" );
 
-          // TODO
-
-
-
-          toolOptions.index = 1;
-          map.controls[google.maps.ControlPosition.TOP_RIGHT].push(toolOptions);
+          // PUSH CUSTOM HTML TO MAP OVERLAY
+          properties.index = 1;
+          map.controls[google.maps.ControlPosition.TOP_RIGHT].push(properties);
           controlDiv.index = 2;
           map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlDiv);
+          rightPanel.index = 4;
+          map.controls[google.maps.ControlPosition.RIGHT].push(rightPanel);
         }
 
 
         function updateVectorInfo( newVector, vectorType, vectorID ) {
-  
-          if (vectorType === "marker")
-            {vectors.markers.push(newVector);}
-          if (vectorType === "polyline")
-            {vectors.polylines.push(newVector);}
-          if (vectorType === "polygon")
-            {vectors.polygons.push(newVector);}
-          if (vectorType === "rectangle")
-            {vectors.rectangles.push(newVector);}
-          if (vectorType === "circle")
-            {vectors.circles.push(newVector);}
-
-          vectors.active.push( [ newVector, vectorType, vectorID ] );
+          vectors.push( { "vector": newVector, "vectorType": vectorType, "vectorID": vectorID } );
           updateVectorList();
         }
 
@@ -566,9 +617,19 @@ function initialize() {
 
         drawingManager.setMap(map);
 
-        setUpTools();
-        setUpRightPanel();
-
+        createCustomUI();
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
+
+      $( window ).load( function() {
+        setTimeout( function() {
+
+          $( ".custom-button.marker" ).addClass( "active" );
+          $( ".custom-button" ).on( 'click', function(e) {
+            e.preventDefault();
+            $( ".custom-button" ).removeClass( "active" );
+            $( this ).addClass( "active" );
+          });
+        }, 500);
+      });
