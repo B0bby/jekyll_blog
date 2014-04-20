@@ -42,6 +42,7 @@
         .sidebar {
             float: left;
             width: 200px;
+            margin-right: 20px
         }
         .sidebar.profile_pic {
             width: 100px;
@@ -51,8 +52,10 @@
 
         }
         li.header {
+            margin-bottom: 5px;
             font-weight: bold;
             margin-top: 5px;
+            border-bottom: 1px solid #555;
         }
         .details {
             display: inline-block;
@@ -74,6 +77,18 @@
             width: 35px; 
         }
         .course .title { }
+        .tab-content {
+            width: 600px;
+        }
+        #research li {
+            padding-left: 10px;
+            text-indent: -10px;
+            margin-bottom: 20px;
+            line-height: 18px;
+        }
+        #research li.header {
+            margin-bottom: 5px;
+        }
     </style>
 
     <div class="staff_records">
@@ -82,6 +97,7 @@
 
 </xsl:template>
 
+
 <xsl:template match="/a:Data/a:Record">
 
     <div class="profile">
@@ -89,6 +105,7 @@
     </div>
     
 </xsl:template>
+
 
 <xsl:template match="a:PCI">
 
@@ -143,57 +160,77 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#about" data-toggle="tab">About</a></li>
           <li><a href="#education" data-toggle="tab">Education</a></li>
-          <li><a href="#honors" data-toggle="tab">Honors</a></li>
+          <li><a href="#research" data-toggle="tab">Research</a></li>
         </ul> <!-- END tabs -->
 
         <div class="tab-content">
-        <div class="tab-pane fade in active" id="about">
-            <ul>
-                <xsl:if test="a:DESC != ''">
-                    <li class="header">RESPONSIBILITIES</li>
-                    <li><xsl:value-of select="a:DESC" /></li>
-                </xsl:if>
 
-                <xsl:if test="a:BIO != ''">
-                    <li class="header">BIOGRAPHY</li>
-                    <li><xsl:value-of select="a:BIO" /></li>
-                </xsl:if>
+            <div class="tab-pane fade in active" id="about">
+                <ul>
+                    <xsl:if test="a:DESC != ''">
+                        <li class="header">RESPONSIBILITIES</li>
+                        <li><xsl:value-of select="a:DESC" /></li>
+                    </xsl:if>
 
-                    <li class="header">CURRENT COURSES</li>
-                    <xsl:apply-templates select="../a:SCHTEACH" />
+                    <xsl:if test="a:BIO != ''">
+                        <li class="header">BIOGRAPHY</li>
+                        <li><xsl:value-of select="a:BIO" /></li>
+                    </xsl:if>
 
-                <xsl:if test="a:DESC != ''">
-                    <li class="header">RESPONSIBILITIES</li>
-                    <li><xsl:value-of select="a:DESC" /></li>
-                </xsl:if>
+                    <xsl:if test="../a:SCHTEACH!=''">
+                        <li class="header">CURRENT COURSES</li>
+                        <xsl:apply-templates select="../a:SCHTEACH" />
+                    </xsl:if>
 
-                <xsl:if test="a:TEACHING_INTEREST != ''">
-                    <li class="header">TEACHING INTERESTS</li>
-                    <xsl:for-each select="a:TEACHING_INTEREST">
-                        <li><xsl:value-of select="." /></li>
-                    </xsl:for-each>
-                </xsl:if>
+                    <xsl:if test="a:TEACHING_INTERESTS != ''">
+                        <li class="header">TEACHING INTERESTS</li>
+                        <xsl:for-each select="a:TEACHING_INTERESTS">
+                            <li><xsl:value-of select="." /></li>
+                        </xsl:for-each>
+                    </xsl:if>
 
-                <xsl:if test="a:RESEARCH_INTEREST != ''">
-                    <li class="header">RESEARCH INTERESTS</li>
-                    <xsl:for-each select="a:RESEARCH_INTEREST">
-                        <li><xsl:value-of select="." /></li>
-                    </xsl:for-each>
-                </xsl:if>
-            </ul>
+                    <xsl:if test="a:RESEARCH_INTERESTS != ''">
+                        <li class="header">RESEARCH INTERESTS</li>
+                        <xsl:for-each select="a:RESEARCH_INTERESTS">
+                            <li><xsl:value-of select="." /></li>
+                        </xsl:for-each>
+                    </xsl:if>
+                </ul>
+            </div>
+        
+            <div class="tab-pane fade" id="education">
+                <xsl:choose>
+                <xsl:when test="../a:EDUCATION!=''">
+                    <xsl:apply-templates select="../a:EDUCATION" />
+                </xsl:when>
+                <xsl:otherwise>
+                    <ul><li><em>Nothing seems to be here.</em></li></ul>
+                </xsl:otherwise>
+                </xsl:choose>
+            </div>
 
-        </div>
-        <div class="tab-pane fade" id="education">
+            <div class="tab-pane fade" id="research">
 
-        </div>
-        <div class="tab-pane fade" id="honors">
-
-        </div>
+                <xsl:if test="../a:INTELLCONT!=''" ><ul>
+                    <li class="header">JOURNALS</li>
+                    <xsl:apply-templates select="../a:INTELLCONT" />
+                </ul></xsl:if>
+                <xsl:if test="../a:PRESENT!=''" ><ul>
+                    <li class="header">PRESENTATIONS</li>
+                    <xsl:apply-templates select="../a:PRESENT" />
+                </ul></xsl:if>
+                <xsl:if test="../a:CONGRANT!=''" ><ul>
+                    <li class="header">GRANTS</li>
+                    <xsl:apply-templates select="../a:CONGRANT" />
+                </ul></xsl:if>
+            </div>
         </div> <!-- END tab-content -->
     </div>
 
 </xsl:template>
 
+
+<!-- TEACHING SCHEDULE -->
 <xsl:template match="a:SCHTEACH">
 
     <xsl:for-each select=".">
@@ -207,5 +244,90 @@
     </xsl:for-each>
 
 </xsl:template>
+
+
+<!-- EDUCATION HISTORY -->
+<xsl:template match="a:EDUCATION">
+
+    <xsl:for-each select=".">
+        <ul>
+            <li class="header">
+                <xsl:if test="a:DEG!=''"><xsl:value-of select="a:DEG" /></xsl:if>
+                <xsl:if test="a:MAJOR!=''"><xsl:value-of select="concat( ' ', a:MAJOR )" /></xsl:if>
+                <xsl:if test="a:SUPPAREA!=''"><xsl:value-of select="concat( ' / ', a:SUPPAREA )" /></xsl:if>
+            </li>
+            <li><xsl:value-of select="a:SCHOOL" /></li>
+            <li><xsl:value-of select="a:LOCATION" /></li>
+        </ul>
+    </xsl:for-each>
+
+</xsl:template>
+
+
+<!-- JOURNALS / ARTICLES -->
+<xsl:template match="a:INTELLCONT">
+
+    <xsl:for-each select=".">
+        
+        <li>
+            <xsl:for-each select="a:INTELLCONT_AUTH">
+                <xsl:if test="a:LNAME!=''"><xsl:value-of select="a:LNAME" /></xsl:if>
+                <xsl:if test="a:FNAME!=''"><xsl:value-of select="concat( ', ', substring( a:FNAME, 1, 1 ), '. ')" /></xsl:if>
+            </xsl:for-each>
+            <xsl:if test="a:TITLE!=''"><xsl:value-of select="a:TITLE" /></xsl:if>
+            <xsl:if test="a:PUBLISHER!=''"><em><xsl:value-of select="concat( ', ', a:PUBLISHER )" />.</em></xsl:if>
+            <xsl:if test="a:VOLUME!=''"> Vol. <xsl:value-of select="a:VOLUME" /></xsl:if>
+            <xsl:if test="a:ISSUE!=''"> ( <xsl:value-of select="a:ISSUE" /> )</xsl:if>
+            <xsl:if test="a:PAGENUM!=''"> pp. <xsl:value-of select="a:PAGENUM" /></xsl:if>
+        </li>
+        
+    </xsl:for-each>
+
+</xsl:template>
+
+
+<!-- PRESENTATIONS -->
+<xsl:template match="a:PRESENT">
+
+    <xsl:for-each select=".">
+        
+        <li>
+            <xsl:for-each select="a:PRESENT_AUTH">
+                <xsl:if test="a:LNAME!=''"><xsl:value-of select="a:LNAME" /></xsl:if>
+                <xsl:if test="a:FNAME!=''"><xsl:value-of select="concat( ', ', substring( a:FNAME, 1, 1 ), '. ')" /></xsl:if>
+            </xsl:for-each>
+            <xsl:if test="a:DATE_START!=''"> ( <xsl:value-of select="a:DATE_START" /> ). </xsl:if>
+            <xsl:if test="a:TITLE!=''"><xsl:value-of select="a:TITLE" />. </xsl:if>
+            <xsl:if test="a:NAME!=''"> Presented at the <xsl:value-of select="a:NAME" />. </xsl:if>
+            <xsl:if test="a:LOCATION!=''">, <xsl:value-of select="a:LOCATION" /></xsl:if>
+        </li>
+        
+    </xsl:for-each>
+
+</xsl:template>
+
+
+<!-- AWARDED GRANTS AND CONTRACTS -->
+<xsl:template match="a:CONGRANT">
+
+    <xsl:for-each select=".">
+        
+        <li>
+            <xsl:for-each select="a:CONGRANT_INVEST">
+                <xsl:if test="a:LNAME!=''"><xsl:value-of select="a:LNAME" /></xsl:if>
+                <xsl:if test="a:FNAME!=''"><xsl:value-of select="concat( ', ', substring( a:FNAME, 1, 1 ), '. ')" /></xsl:if>
+            </xsl:for-each>
+            <xsl:if test="a:DTY_START!=''"><xsl:value-of select="concat( '(', a:DTY_START, '). ' )" /></xsl:if>
+            <xsl:if test="a:TITLE!=''"><xsl:value-of select="a:TITLE" /></xsl:if>
+            <xsl:if test="a:SPONORG!=''"><em><xsl:value-of select="concat( ', ', a:SPONORG )" /></em></xsl:if>
+            <xsl:if test="a:AMOUNT!=''"> Award amount: $<xsl:value-of select="a:AMOUNT" /></xsl:if>
+        </li>
+        
+    </xsl:for-each>
+
+</xsl:template>
+
+
+
 
 </xsl:stylesheet>
