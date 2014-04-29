@@ -1,0 +1,64 @@
+==================================================================
+https://keybase.io/b0b
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://memopadman.com
+  * I am b0b (https://keybase.io/b0b) on keybase.
+  * I have a public key with fingerprint 1287 A541 1D2F A121 3CAA  D6DB 3FAD 8B8E 5EBA 25C2
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "1287a5411d2fa1213caad6db3fad8b8e5eba25c2",
+            "host": "keybase.io",
+            "key_id": "3FAD8B8E5EBA25C2",
+            "uid": "0fc0ff047bfdc1bdd2be34c3d65c6d00",
+            "username": "b0b"
+        },
+        "service": {
+            "hostname": "memopadman.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1398743137,
+    "expire_in": 157680000,
+    "prev": "14fd4c31353437c06104d9d7a662e87b4028ecbd65b94636733ca888d8fce93a",
+    "seqno": 8,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: GnuPG v2.0.22 (MingW32)
+
+owE1UVtIFFEY3l01XOkiQhBmYVPecFvmPrNLYVpGYRKmZBm4nDPnjA61O+vsunnB
+hzKiC4joQypiviRUlISrYkQuRVkqplFQGKUZgQoJGmWF1hmx8/Jzvv/7vv/WuCnK
+YrMKQy/rPSsxqdaRyDdoKfQkg1oK6qiactdSZ/FaUDVfGTb8huYLUm6KYWUJCDzD
+IFYFDMtwCgBIRJBTAZKhjAUMASsoLOWgyvWAqSA2EASwU9MJRj4eDRGUO5x9SM6R
+c4XcnGxWOGjyK9cStKrQqkrzElSRwkCEWIg5XuGQKCgiommTGMCGD3gxYUMaUnUO
+igAhTcFmu2bV9aQXe3U/QF7gcyq6lwj9hh7UFf0cyZUHg363KQ1W+03ueQw96y4e
+qPkQGZoIQtgIaLqPcjOEqQQ105bhXLLEcwwnOShc5dcM7NFMhiCJMk2eWQaHzFXx
+KiKNM5zA8Zyk0CJD88iFJCCKLJYlyNOsjBVIBoMuXuREiSPLlGUZyaqCXRygzLkq
+fDrllkmboIxYBrQyHwhWGpiqu2pNirZYbZYNMTbzbJY4e/z/YzZ+iLX0w/uTtqiM
+YVu7a7ia+Wm0PIntGVjOfVRTtDwzVXhFb/p18Xuyar8w3xVa6puZLjjetSN+aYIb
+aKxpWDrJ7vl8ZLmot839Or7gdFVqycRCuLT76+OQ7UvzaOL8u1tdDuxSBpos13YX
+d6RPlJxoBtMPE1KOdrQycy3ps7ta7iVGmKernT9+70tofODMH94+ONPpngrfdtmx
+dePo5qydkT7H38iBO3Ph/nDaYmT2Et0baet5FZdzxv4sM2VlYfVPSWXX+NsbadNV
+YHJw/vL+rW17K8aOteYU3ww0jNnGh7bISZ/qP+a7El6ULhrO+Ylt0XkZd0faM99f
+n+rOev7mFMr7Bw==
+=sNI7
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/b0b
+
+==================================================================
