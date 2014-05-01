@@ -26,11 +26,22 @@
         height: 50px;
         width: 100%;
       }
+      .vectorBox .bg {
+        height: 100%;
+        width: 100%;
+      }
+      .vectorID {
+        position: absolute;
+        line-height: 50px;
+        margin-left: 5px;
+        font-size: 20px;
+        opacity: 1;
+      }
       .vectorBox:hover {
-        background-color: #EC0033 !important;
+        background-color: #F65175 !important;
       }
       .vectorBox.active {
-        background-color: #EC0033 !important;
+        background-color: #F65175 !important;
       }
       .deleteBtn {
         position: relative;
@@ -120,19 +131,99 @@
       .filter-button .all {
         
       }
+      .delete-menu {
+        position: absolute;
+        background: white;
+        padding: 3px;
+        color: #666;
+        font-weight: bold;
+        border: 1px solid #999;
+        font-family: sans-serif;
+        font-size: 12px;
+        box-shadow: 1px 3px 3px rgba(0, 0, 0, .3);
+        margin-top: -10px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .delete-menu:hover {
+        background: #eee;
+      }
+      #lean_overlay {
+          position: fixed;
+          z-index:100;
+          top: 0px;
+          left: 0px;
+          height:100%;
+          width:100%;
+          background: #000;
+          display: none;
+      }
+      #export,
+      #import {
+        display: none;
+        width: 50%;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+      #export pre,
+      #import pre {
+        max-height: 400px;
+        overflow: scroll;
+        padding: 10px;
+        background-color: #E2E2E2;
+        border-radius: 5px;
+        border: 1px solid #AAA;
+      }
     </style>
 
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing"></script>
 
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="js/jquery.easyModal.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script type="text/javascript" src="js/jquery.leanModal.min.js"></script>
     <script type="text/javascript" src="js/maptool.js"></script>
 
   </head>
   <body>
     <div id="map-canvas"></div>
-    <span id="exportModal"></span>
+    <a id="go" rel="exportModal" name="export" href="#export"></a>
+    <a id="go" rel="importModal" name="import" href="#import"></a>
+    <div id="export">
+      <div>
+        <h1>Output</h1>
+        <pre></pre>
+        <a href="">Download</a>
+      </div>
+    </div>
+    <div id="import">
+      <div>
+        <input type="file" id="fileInput">
+        <pre id="fileDisplayArea"></pre>
+      </div>
+    </div>
     <script type="text/javascript" src="js/spectrum.js"></script>
+    <script>
+      window.onload = function() {
+          var fileInput = document.getElementById('fileInput');
+          var fileDisplayArea = document.getElementById('fileDisplayArea');
+
+          fileInput.addEventListener('change', function(e) {
+            var file = fileInput.files[0];
+            var textType = /text.*/;
+
+            if (file.type.match(textType)) {
+              var reader = new FileReader();
+
+              reader.onload = function(e) {
+                fileDisplayArea.innerText = reader.result;
+              }
+
+              reader.readAsText(file);  
+            } else {
+              fileDisplayArea.innerText = "File not supported!"
+            }
+          });
+      }
+  </script>
   </body>
 </html>

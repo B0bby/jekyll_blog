@@ -1,3 +1,88 @@
+/**
+ * A menu that lets a user delete a selected vertex of a path.
+ * @constructor
+ */
+function DeleteMenu() {
+  this.div_ = document.createElement('div');
+  this.div_.className = 'delete-menu';
+  this.div_.innerHTML = 'Delete';
+
+  var menu = this;
+  google.maps.event.addDomListener(this.div_, 'click', function() {
+    menu.removeVertex();
+  });
+}
+DeleteMenu.prototype = new google.maps.OverlayView();
+
+DeleteMenu.prototype.onAdd = function() {
+  var deleteMenu = this;
+  var map = this.getMap();
+  this.getPanes().floatPane.appendChild(this.div_);
+
+  // mousedown anywhere on the map except on the menu div will close the
+  // menu.
+  this.divListener_ = google.maps.event.addDomListener(map.getDiv(), 'mousedown', function(e) {
+    if (e.target != deleteMenu.div_) {
+      deleteMenu.close();
+    }
+  }, true);
+};
+
+DeleteMenu.prototype.onRemove = function() {
+  google.maps.event.removeListener(this.divListener_);
+  this.div_.parentNode.removeChild(this.div_);
+
+  // clean up
+  this.set('position');
+  this.set('path');
+  this.set('vertex');
+};
+
+DeleteMenu.prototype.close = function() {
+  this.setMap(null);
+};
+
+DeleteMenu.prototype.draw = function() {
+  var position = this.get('position');
+  var projection = this.get('projection');
+  var vertex = this.get('vertex');
+
+  if (!position || !projection) {
+    return;
+  }
+
+  var point = projection.fromLatLngToDivPixel(position);
+  this.div_.style.top = point.y + 'px';
+  this.div_.style.left = point.x + 'px';
+};
+
+/**
+ * Opens the menu at a vertex of a given path.
+ */
+DeleteMenu.prototype.open = function(map, path, vertex) {
+  this.set('position', path.getAt(vertex));
+  this.set('path', path);
+  this.set('vertex', vertex);
+  this.setMap(map);
+  this.draw();
+};
+
+/**
+ * Deletes the vertex from the path.
+ */
+DeleteMenu.prototype.removeVertex = function() {
+  var path = this.get('path');
+  var vertex = this.get('vertex');
+
+  if (!path || vertex == undefined) {
+    this.close();
+    return;
+  }
+
+  path.removeAt(vertex);
+  this.close();
+};
+
 function initialize() {
 
         /* ****************
@@ -15,8 +100,6 @@ function initialize() {
          var lastSelectionID = -1;
          var fillColorHolder = "";
          var strokeColorHolder = "";
-
-         $( "#exportModal" ).easyModal();
 
         /* ***************************
          * CREATE A BUNCH OF FUNCTIONS
@@ -175,10 +258,10 @@ function initialize() {
 
 
           $("#fillColor").spectrum({
-              color: lastFillColor,
+              color: vectors[selectedVectorID].fillColor,
               change: function( color ) {
                 var selectedVector = getVectorByID( selectedVectorID );
-                lastFillColor = color.toHexString();
+                vectors[selectedVectorID].fillColor = color.toHexString();
                 selectedVector.setOptions( {
                   fillColor: color.toHexString()
                 });
@@ -187,10 +270,10 @@ function initialize() {
           });
 
           $("#strokeColor").spectrum({
-              color: lastStrokeColor,
+              color: vectors[selectedVectorID].strokeColor,
               change: function( color ) {
                 var selectedVector = getVectorByID( selectedVectorID );
-                lastStrokeColor = color.toHexString();
+                vectors[selectedVectorID].strokeColor = color.toHexString();
                 selectedVector.setOptions( {
                   strokeColor: color.toHexString()
                 });
@@ -214,8 +297,8 @@ function initialize() {
           if ( selectedVectorID !== -1 ){
             lastSelectionID = -1;
             vectors[selectedVectorID].vector.setOptions( {
-                strokeColor: lastStrokeColor,
-                fillColor: lastFillColor,
+                strokeColor: vectors[selectedVectorID].strokeColor,
+                fillColor: vectors[selectedVectorID].fillColor,
                 editable: false
             });
           }
@@ -235,18 +318,18 @@ function initialize() {
           for ( index in filteredVectors ) {
             var thisVector = filteredVectors[index].vector;
 
-            var fColor = thisVector.fillColor;
-            var sColor = thisVector.strokeColor;
-            var opacity = thisVector.fillOpacity;
+            var fColor = filteredVectors[index].fillColor;
+            var sColor = filteredVectors[index].strokeColor;
+            var opacity = filteredVectors[index].opacity;
             var vectorID = filteredVectors[index].vectorID;
+            var vectorName = filteredVectors[index].name;
 
-            if (opacity === 'undefined')
-              { opacity = 0.5; }
-
-            $( ".vectorList" ).append( "<div style='background-color: " 
+            $( ".vectorList" ).append( "<div class='vectorBox' ><span class='vectorID' style='color: " 
+                                        + sColor + "'>" 
+                                        + vectorName + "</span><div class='bg' style='background-color: " 
                                         + fColor + "; opacity: " 
-                                        + opacity + "' class='vectorBox' id='" 
-                                        + vectorID + "'></div>" );
+                                        + opacity + "' id='" 
+                                        + vectorID + "'></div></div>" );
 
             $( "#" + vectorID ).append( "<div class='deleteBtn'></div>" );
 
@@ -283,19 +366,17 @@ function initialize() {
               var index = getFilteredArrayPositionFromID( id );
 
               $( ".vectorBox" ).removeClass( "active" );
-              $( this ).addClass( "active" );
+              $( this ).parent().addClass( "active" );
 
               selectedVectorID = index;
 
               if (lastSelectionID === -1){
                 lastSelectionID = selectedVectorID;
-                lastFillColor = fillColorHolder;
-                lastStrokeColor = strokeColorHolder;
               }
 
               filteredVectors[lastSelectionID].vector.setOptions( {
-                  strokeColor: lastStrokeColor,
-                  fillColor: lastFillColor,
+                  strokeColor: filteredVectors[lastSelectionID].strokeColor,
+                  fillColor: filteredVectors[lastSelectionID].fillColor,
                   editable: false
               });
 
@@ -312,8 +393,6 @@ function initialize() {
 
               centerOnElement( filteredVectors[index].vector );
 
-              lastFillColor = fillColorHolder;
-              lastStrokeColor = strokeColorHolder;
               lastSelectionID = index;
 
               callPropertiesDropdown();
@@ -321,8 +400,8 @@ function initialize() {
             });
 
             $( "#" + vectorID + " .deleteBtn" ).click( function() {
-              var parent = $( this ).parent();
-              var id = parent.attr( "id" );
+              var parent = $( this ).parent().parent();
+              var id = $( this ).parent().attr( "id" );
               var index = getFilteredArrayPositionFromID( id );
               var aIndex = getVectorIndexFromListID( id );
               filteredVectors[index].vector.setMap(null);
@@ -370,18 +449,18 @@ function initialize() {
 
 
           var customButtons = [
-            { "name":"edit",      "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv }, 
-            { "name":"marker",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"polyline",  "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"polygon",   "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"rectangle", "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"circle",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"export",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"import",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv },
-            { "name":"markers",   "object": document.createElement('div'), "cssClass":"filter-button", "container":filters }, 
-            { "name":"lines",     "object": document.createElement('div'), "cssClass":"filter-button", "container":filters },
-            { "name":"shapes",    "object": document.createElement('div'), "cssClass":"filter-button", "container":filters },
-            { "name":"all",       "object": document.createElement('div'), "cssClass":"filter-button", "container":filters }
+            { "name":"edit",      "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" }, 
+            { "name":"marker",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"line",      "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"polygon",   "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"rectangle", "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"circle",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"export",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#test" },
+            { "name":"import",    "object": document.createElement('div'), "cssClass":"custom-button", "container":controlDiv, "href":"#" },
+            { "name":"markers",   "object": document.createElement('div'), "cssClass":"filter-button", "container":filters, "href":"#" }, 
+            { "name":"lines",     "object": document.createElement('div'), "cssClass":"filter-button", "container":filters, "href":"#" },
+            { "name":"shapes",    "object": document.createElement('div'), "cssClass":"filter-button", "container":filters, "href":"#" },
+            { "name":"all",       "object": document.createElement('div'), "cssClass":"filter-button", "container":filters, "href":"#" }
             ];
 
 
@@ -391,7 +470,9 @@ function initialize() {
             var name = customButtons[obj].name;
             var cssClass = customButtons[obj].cssClass;
             var container = customButtons[obj].container;
+            var href = customButtons[obj].href;
             control.className = cssClass + " " + name;
+            $( control ).attr( "href", href );
             control.style.cursor = 'pointer';
             container.appendChild(control);
 
@@ -413,7 +494,7 @@ function initialize() {
             toolChangeUpdate();
           });
           // Select Polyline
-          google.maps.event.addDomListener( getObjectByName( customButtons, "polyline" ).object, 'click', function() {
+          google.maps.event.addDomListener( getObjectByName( customButtons, "line" ).object, 'click', function() {
             drawingManager.setDrawingMode( google.maps.drawing.OverlayType.POLYLINE );
             toolChangeUpdate();
           });
@@ -434,7 +515,7 @@ function initialize() {
           });
           // Export JSON
           google.maps.event.addDomListener( getObjectByName( customButtons, "import" ).object, 'click', function( e ) {
-            exportVectors( e );
+            importVectors( e );
             toolChangeUpdate();
           });
           // import JSON
@@ -473,19 +554,19 @@ function initialize() {
 
           // BIND FUNCTIONS TO DRAWING COMPLETION EVENTS
           google.maps.event.addDomListener(drawingManager, 'markercomplete', function(marker) {
-            updateVectorInfo(marker, "marker", vectorIDCounter++ );
+            updateVectorInfo(marker, "marker", vectorIDCounter++, "", "" );
           });
           google.maps.event.addDomListener(drawingManager, 'polylinecomplete', function(polyline) {
-            updateVectorInfo(polyline, "line", vectorIDCounter++ );
+            updateVectorInfo(polyline, "line", vectorIDCounter++, "#280671", "" );
           });
           google.maps.event.addDomListener(drawingManager, 'polygoncomplete', function(polygon) {
-            updateVectorInfo(polygon, "polygon", vectorIDCounter++ );
+            updateVectorInfo(polygon, "polygon", vectorIDCounter++, "#0D8800", "#329D27" );
           });
           google.maps.event.addDomListener(drawingManager, 'rectanglecomplete', function(rectangle) {
-            updateVectorInfo(rectangle, "rectangle", vectorIDCounter++ );
+            updateVectorInfo(rectangle, "rectangle", vectorIDCounter++, "#280671", "#472B83" );
           });
           google.maps.event.addDomListener(drawingManager, 'circlecomplete', function(circle) {
-            updateVectorInfo(circle, "circle", vectorIDCounter++ );
+            updateVectorInfo(circle, "circle", vectorIDCounter++, "#043A6B", "#26537C" );
           });
 
 
@@ -499,68 +580,109 @@ function initialize() {
         }
 
 
-        function updateVectorInfo( newVector, vectorType, vectorID ) {
-          vectors.push( { "vector": newVector, "vectorType": vectorType, "vectorID": vectorID } );
+        function updateVectorInfo( newVector, vectorType, vectorID, strokeColor, fillColor ) {
+          vectors.push( { "vector": newVector, 
+                          "vectorType": vectorType, 
+                          "vectorID": vectorID,
+                          "strokeColor": strokeColor,
+                          "fillColor": fillColor,
+                          "opacity": 0.5,
+                          "name": vectorType.substring(0,3).toUpperCase() + vectorID
+                        } );
           updateVectorList();
+
+          google.maps.event.addListener( newVector, 'rightclick', function(e) {
+            // Check if click was on a vertex control point
+            if ( e.vertex == undefined ) {
+              return;
+            }
+            var deleteMenu = new DeleteMenu();
+            deleteMenu.open( map, newVector.getPath(), e.vertex );
+          });
+
         }
 
 
         function exportVectors( event ) {
-          var vectorData = "map : [ \n";
+          var vectorData = "vectors : [ \n";
+          var markerData = "  markers : [ \n";
+          var lineData   = "  lines : [ \n";
+          var polyData   = "  polygons : [ \n";
+          var rectData   = "  rectangles : [ \n";
+          var circData   = "  circles : [ \n";
 
-          if ( vectors.markers.length !=0 ) {
-            vectorData = vectorData + "\t markers : [ \n";
-            for ( var i=0; i < vectors.markers.length; i++ ){
-              vectorData = vectorData + "\t\t marker_" + i + " : [ \n";
-              vectorData = vectorData + "\t\t position : " + vectors.markers[i].getPosition().toString() + " ]";
-              if ( i != vectors.markers.length - 1 ) {
-                vectorData = vectorData + ", \n";
+
+          $( vectors ).each( function() {
+            var vectorType = this.vectorType;
+            var vector     = this.vector;
+            var vectorID   = this.vectorID;
+            var vectorName = this.name;
+            var fillColor  = this.fillColor;
+            var strokeColor= this.strokeColor;
+            var opacity    = this.opacity;
+
+            if ( vectorType === "marker" ) {
+              markerData = markerData + "    " + vectorName + " : [ \n";
+              markerData = markerData + "      position : " + vector.getPosition().toString() + " ] \n";
+            }
+            if ( vectorType === "line" ) {
+              lineData = lineData + "    " + vectorName + " : [\n";
+              lineData = lineData + "      strokeColor : " + strokeColor + "\n"
+                                  + "      opacity : " + opacity + "\n";
+              for ( path in vector.getPath().getArray() ) {
+                lineData = lineData + "      position : " +  vector.getPath().getArray()[path].toString() + "\n";
               }
             }
-            vectorData = vectorData + "\n\t ] \n";
-          }
-          if ( vectors.polylines.length !=0 ) {
-            vectorData = vectorData + "polylines : [ ";
-            for ( var i=0; i < vectors.markers.length; i++ ){
-              vectorData = vectorData + "polyline_" + i + " : [ ";
-              vectorData = vectorData + vectors.markers[i].getPosition().toString() + "\n";
-            }
-          }
-          if ( vectors.polygons.length !=0 ) {
-            vectorData = vectorData + "polygons : [ ";
-            for ( var i=0; i < vectors.markers.length; i++ ){
-              vectorData = vectorData + "polygon_" + i + " : [ ";
-              vectorData = vectorData + vectors.markers[i].getPosition().toString() + "\n";
-            }
-          }
-          if ( vectors.rectangles.length !=0 ) {
-            vectorData = vectorData + "\t rectangles : [ \n";
-            for ( var i=0; i < vectors.rectangles.length; i++ ){
-              vectorData = vectorData + "\t\t rectangle" + i + " : [ \n";
-              vectorData = vectorData + "\t\t bounds : " + vectors.rectangles[i].getBounds().toString() + " ]";
-              if ( i != vectors.rectangles.length - 1 ) {
-                vectorData = vectorData + ", \n";
+            if ( vectorType === "polygon" ) {
+              polyData = polyData + "    " + vectorName + " : [\n";
+              polyData = polyData + "      fillColor : " + fillColor + "\n"
+                                  + "      strokeColor : " + strokeColor + "\n"
+                                  + "      opacity : " + opacity + "\n";
+              for ( path in vector.getPath().getArray() ) {
+                polyData = polyData + "      path_" + path + ": " +  vector.getPath().getArray()[path].toString() + "\n";
               }
             }
-            vectorData = vectorData + "\n\t ] \n";
-          }
-          if ( vectors.circles.length !=0 ) {
-            vectorData = vectorData + "\t circles : [ \n";
-            for ( var i=0; i < vectors.circles.length; i++ ){
-              vectorData = vectorData + "circle_" + i + " : [ \n";
-              vectorData = vectorData + "center : " + vectors.circles[i].getCenter().toString() + "," +
-                                        "radius : " + vectors.circles[i].getRadius().toString() + "\n";
-              vectorData = vectorData + "]]";
+            if ( vectorType === "rectangle" ) {
+              rectData = rectData + "    " + vectorName + " : [ \n";
+              rectData = rectData + "      fillColor : " + fillColor + "\n"
+                                  + "      strokeColor : " + strokeColor + "\n"
+                                  + "      opacity : " + opacity + "\n";
+              rectData = rectData + "      bounds : " + vector.getBounds().toString() + "\n"
+                                  + "    ]\n";
             }
-          }
-          vectorData = vectorData + "]";
-          $( "#exportModal" ).trigger( 'openModal' );
+            if ( vectorType === "circle" ) {
+              circData = circData + "    " + vectorName + " : [ \n";
+              circData = circData + "      fillColor : " + fillColor + "\n"
+                                  + "      strokeColor : " + strokeColor + "\n"
+                                  + "      opacity : " + opacity + "\n";
+              circData = circData + "      center : " + vector.getCenter().toString() + "\n" 
+                                  + "      radius : " + vector.getRadius().toString() + "\n";
+              circData = circData + "    ]\n";
+            }
+          })
+
+          vectorData += markerData + "\n\t ] \n";
+          vectorData += lineData + "\n\t ] \n";
+          vectorData += polyData + "\n\t ] \n";
+          vectorData += rectData + "\n\t ] \n";
+          vectorData += circData + "\n\t ] \n";
+          vectorData +=  "]";
+
+          $( "#export" ).find( "pre" ).text( vectorData );
+          var base64File = "data:application/octet-stream;charset=utf-8;base64," + window.btoa( vectorData );
+          $( "#export" ).find( "a" ).attr( "href", base64File );
+          $( "#export" ).find( "a" ).attr( "download", "json_output.txt" );
+
+          $( "a[rel*=exportModal]" ).leanModal();
+          $( "a[rel*=exportModal]" ).click();
         }
 
 
-        function ImportVectors() {
-
+        function importVectors() {
+          $( "a[rel*=importModal]" ).leanModal();
+          $( "a[rel*=importModal]" ).click();
         }
+
 
       /* *******************************
        * MAP STARTS GETTING PUT TOGETHER

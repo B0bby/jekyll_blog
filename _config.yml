@@ -4,7 +4,7 @@ destination: ./_site
 markdown: kramdown
 
 url: http://memopadman.com
-# url: /home/b0b/git/jekyll_blog/_site/
+#url: /home/b0b/git/jekyll_blog/_site/
 
 lsi: false
 pygments: true
