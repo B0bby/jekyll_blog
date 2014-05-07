@@ -88,7 +88,7 @@ function initialize() {
         /* ****************
          * GLOBAL VARIABLES
          * **************** */
-
+         var uploadFile = "";
          var vectorIDCounter = 0;
          var selectedVectorID = -1;
          var selectedFilter = "all";
@@ -324,9 +324,9 @@ function initialize() {
             var vectorID = filteredVectors[index].vectorID;
             var vectorName = filteredVectors[index].name;
 
-            $( ".vectorList" ).append( "<div class='vectorBox' ><span class='vectorID' style='color: " 
+            $( ".vectorList" ).append( "<div class='vectorBox' ><div class='vectorID' style='color: " 
                                         + sColor + "'>" 
-                                        + vectorName + "</span><div class='bg' style='background-color: " 
+                                        + vectorName + "</div><div class='bg' style='background-color: " 
                                         + fColor + "; opacity: " 
                                         + opacity + "' id='" 
                                         + vectorID + "'></div></div>" );
@@ -668,6 +668,8 @@ function initialize() {
           vectorData += circData + "\n\t ] \n";
           vectorData +=  "]";
 
+          // vectordata = JSON.stringify( vectors );
+
           $( "#export" ).find( "pre" ).text( vectorData );
           var base64File = "data:application/octet-stream;charset=utf-8;base64," + window.btoa( vectorData );
           $( "#export" ).find( "a" ).attr( "href", base64File );
@@ -679,8 +681,32 @@ function initialize() {
 
 
         function importVectors() {
+          var fileInput = document.getElementById('fileInput');
+          var fileDisplayArea = document.getElementById('fileDisplayArea');
+
+          fileInput.addEventListener('change', function(e) {
+            var file = fileInput.files[0];
+            var textType = /text.*/;
+
+            if (file.type.match(textType)) {
+              var reader = new FileReader();
+
+              reader.onload = function(e) {
+                fileDisplayArea.innerText = reader.result;
+                uploadFile = reader.result;
+                var result = jQuery.parseJSON( uploadFile );
+                console.log( result );
+              }
+
+              reader.readAsText(file);  
+            } else {
+              fileDisplayArea.innerText = "File not supported!"
+            }
+          });
+
           $( "a[rel*=importModal]" ).leanModal();
           $( "a[rel*=importModal]" ).click();
+
         }
 
 

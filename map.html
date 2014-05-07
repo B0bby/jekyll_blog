@@ -22,16 +22,19 @@
         height: 85%%;
       }
       .vectorBox {
+        position: relative;
         border: 1px solid white;
         height: 50px;
         width: 100%;
       }
       .vectorBox .bg {
+        position: relative;
         height: 100%;
         width: 100%;
       }
       .vectorID {
         position: absolute;
+        overflow: hidden;
         line-height: 50px;
         margin-left: 5px;
         font-size: 20px;
@@ -202,28 +205,5 @@
       </div>
     </div>
     <script type="text/javascript" src="js/spectrum.js"></script>
-    <script>
-      window.onload = function() {
-          var fileInput = document.getElementById('fileInput');
-          var fileDisplayArea = document.getElementById('fileDisplayArea');
-
-          fileInput.addEventListener('change', function(e) {
-            var file = fileInput.files[0];
-            var textType = /text.*/;
-
-            if (file.type.match(textType)) {
-              var reader = new FileReader();
-
-              reader.onload = function(e) {
-                fileDisplayArea.innerText = reader.result;
-              }
-
-              reader.readAsText(file);  
-            } else {
-              fileDisplayArea.innerText = "File not supported!"
-            }
-          });
-      }
-  </script>
   </body>
 </html>
