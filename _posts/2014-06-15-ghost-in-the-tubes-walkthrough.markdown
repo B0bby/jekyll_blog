@@ -3,6 +3,9 @@ layout: post
 title: Ghost in the Tubes Walkthough
 ---
 
+[Ghosts III ( original )](https://archive.org/details/nineinchnails_ghosts_I_IV) //
+[Ghosts III ( CTF Version )](/files/24_Ghosts_III_CTF.flac)
+
 For this challenge you were given an audio file and asked to find out what was hidden inside of it. The file was '24_Ghosts_III.flac'. This is a song from a Nine Inch Nails album released under Creative Commons back in 2008. Pretty catchy, definitely would fit well in Quake. 
 
 Playing the song, you'll notice about halfway through, the sound of a weather alert broadcast. It's very faint, though, so it'll be necessary to isolate it before it can be decoded. 
@@ -20,6 +23,3 @@ Use the 'invert' effect on the original, unedited song, and hit play. Now all yo
 There are probably a bunch of programs capable of decoding this signal ( surely one of the HAM Radio variety ), but I just used something called [SeaTTY](http://www.dxsoft.com/en/products/seatty/). In SeaTTY, make sure the 'Mode' is set to 'NWR-SAME', then hit 'File > Decode from file' and the flag will begin to print before your very eyes!
 
 [<img src="/images/seatty.png" />]({{ site.url }}/images/seatty.png)
-
-[Ghosts III ( original )](https://archive.org/details/nineinchnails_ghosts_I_IV)
-[Ghosts III ( CTF Version )](/files/24_Ghosts_III_CTF.flac)
