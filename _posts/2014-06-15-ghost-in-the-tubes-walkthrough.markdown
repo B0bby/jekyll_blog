@@ -17,7 +17,7 @@ So you look online and find [the song in question](/files/24_Ghosts_III_CTF.flac
 
 [<img src="/images/inverted.png" />]({{ site.url }}/images/inverted.png)
 
-Use the 'invert' effect on the track that doesn't have the weather signal, and hit play. Now all you hear is complete silence up until the weather alert, which is now all by it's lonesome.At this point, you can export the track ( cut out the soundless portions if you like ). 
+Use the 'invert' effect on the track that doesn't have the weather signal, and hit play. Now all you hear is complete silence up until the weather alert, which is now all by it's lonesome. At this point, you can export the track ( cut out the soundless portions if you like ). 
 
 [The signal that you normally hear on TV](https://www.youtube.com/watch?v=VPGczKUlgd8) is a protocol designed by NOAA called SAME ( Specific Area Message Encoding ). This is an AFSK modulated data signal that runs at 520.83 baud. It typically transmits some location data and weather warnings and stuff, but in this case it's transmitting the flag.
 
