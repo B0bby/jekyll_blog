@@ -11,7 +11,7 @@ In the 'comments' field for the audio file, there's a [link to a forum post](htt
 
 So you look online and find the song in question ( note: make sure it's the same .flac format. In order for the phase cancelling to work, the tracks need to be identical, save for the sound you want to isolate ). Once you have it, open both songs in the same Audacity project. 
 
-![]({{ site.url }}/images/inverted.png)
+[<img src="/images/inverted.png" />]({{ site.url }}/images/inverted.png)
 
 Use the 'invert' effect on the original, unedited song, and hit play. Now all you hear is complete silence up until the weather alert, which is now all by it's lonesome.At this point, you can export the track ( cut out the soundless portions if you like ). 
 
@@ -19,7 +19,7 @@ Use the 'invert' effect on the original, unedited song, and hit play. Now all yo
 
 There are probably a bunch of programs capable of decoding this signal ( surely one of the HAM Radio variety ), but I just used something called [SeaTTY](http://www.dxsoft.com/en/products/seatty/). In SeaTTY, make sure the 'Mode' is set to 'NWR-SAME', then hit 'File > Decode from file' and the flag will begin to print before your very eyes!
 
-![]({{ site.url }}/images/seatty.png)
+[<img src="/images/seatty.png" />]({{ site.url }}/images/seatty.png)
 
 [Ghosts III ( original )](https://archive.org/details/nineinchnails_ghosts_I_IV)
 [Ghosts III ( CTF Version )](/files/24_Ghosts_III_CTF.flac)
