@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IT 351 Encryption Assignment</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/aes.js"></script>
+	<script>
+
+	    function encrypt(){
+	    	var message   = $("#enc-string").val();
+	    	var pass      = $("#enc-key").val();
+	    	var encrypted = CryptoJS.AES.encrypt( message, pass );
+	    	$("#encrypted").text( encrypted );
+	    }
+
+	    function decrypt(){
+	    	var message   = $("#dec-string").val();
+	    	var pass      = $("#dec-key").val();
+	    	var decrypted = CryptoJS.AES.decrypt( message, pass );
+	    	$("#decrypted").text( decrypted.toString(CryptoJS.enc.Utf8) );
+	    }
+	</script>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body style="padding: 20px; width: 500px;">
+
+  	<h1>Encrypt / Decrypt AES</h1>
+  	<p>Encrypt or decrypt a string in AES.</p> 
+  	<p><i>Uses 256 bit key in CBC mode ( the default for crpyto.js ).</i></p>
+
+	<div class="row">
+	  <div class="col-lg-6">
+	    <div class="input-group">
+	      <span class="input-group-btn">
+	        <button class="btn btn-default" type="button" onclick="encrypt()">Encrypt</button>
+	      </span>
+	      <input type="text" class="form-control" id="enc-string" placeholder="String">
+	      <input type="text" class="form-control" id="enc-key" placeholder="Key">
+	    </div><!-- /input-group -->
+
+	    <p><code id="encrypted"></code></p>
+
+	  </div><!-- /.col-lg-6 -->
+	  <div class="col-lg-6">
+	    <div class="input-group">
+	      <span class="input-group-btn">
+	        <button class="btn btn-default" type="button" onclick="decrypt()">Decrypt</button>
+	      </span>
+	      <input type="text" class="form-control" id="dec-string" placeholder="String">
+	      <input type="text" class="form-control" id="dec-key" placeholder="Key">
+	    </div><!-- /input-group -->
+
+		<p><code id="decrypted"></code></p>
+
+	  </div><!-- /.col-lg-6 -->
+	</div><!-- /.row -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
